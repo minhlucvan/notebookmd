@@ -96,8 +96,7 @@ make check
 notebookmd uses a **core + plugin** architecture:
 
 - **`core.py`** — `Notebook` class handles markdown buffering, asset management, and report lifecycle
-- **`plugins.py`** — Plugin registry, base class (`PluginSpec`), and entry-point discovery
-- **`plugins_builtin.py`** — 8 built-in plugins providing 40+ widget methods
+- **`plugins/`** — Plugin system package: base class (`PluginSpec`), registry, entry-point discovery, and 8 built-in plugins (one module per plugin)
 - **`widgets.py`** — Widget rendering functions
 - **`emitters.py`** — Low-level Markdown emitters
 - **`assets.py`** — Asset file management
@@ -112,7 +111,7 @@ notebookmd uses a **core + plugin** architecture:
 ### Adding a New Widget
 
 1. Identify which built-in plugin it belongs to (or create a new one)
-2. Add the method to the plugin class in `plugins_builtin.py`
+2. Add the method to the plugin class in its module under `plugins/` (e.g. `plugins/data.py`)
 3. Add rendering logic to `widgets.py` if needed
 4. Add tests in `tests/unit/`
 5. Update the plugin table in `CLAUDE.md` if adding a new plugin

@@ -16,8 +16,18 @@ handles markdown buffering, asset management, and report lifecycle. All widget m
 notebookmd/
 ├── __init__.py          # Public API: nb(), Notebook, NotebookConfig, PluginSpec, register_plugin
 ├── core.py              # Notebook class — core engine + plugin loading
-├── plugins.py           # PluginSpec base class, global registry, entry-point discovery
-├── plugins_builtin.py   # 8 built-in plugins (text, data, charts, status, layout, media, analytics, utility)
+├── plugins/             # Plugin system — base class, registry, and built-in plugins
+│   ├── __init__.py      # Re-exports: PluginSpec, register_plugin, BUILTIN_PLUGINS, all plugin classes
+│   ├── _base.py         # PluginSpec base class
+│   ├── _registry.py     # Global registry, entry-point discovery, load_default_plugins
+│   ├── text.py          # TextPlugin: title, header, subheader, caption, md, note, code, text, latex, divider
+│   ├── data.py          # DataPlugin: table, dataframe, metric, metric_row, json, kv, summary
+│   ├── charts.py        # ChartPlugin: line_chart, area_chart, bar_chart, figure, plotly_chart, altair_chart
+│   ├── status.py        # StatusPlugin: success, error, warning, info, exception, progress, toast, balloons, snow
+│   ├── layout.py        # LayoutPlugin: expander, container, tabs, columns
+│   ├── media.py         # MediaPlugin: image, audio, video
+│   ├── analytics.py     # AnalyticsPlugin: stat, stats, badge, change, ranking
+│   └── utility.py       # UtilityPlugin: write, echo, empty, connection_status, export_csv
 ├── widgets.py           # 40+ widget renderers (metrics, charts, layout, status)
 ├── emitters.py          # Low-level Markdown emitters (table, figure, code, kv)
 ├── capture.py           # Stdout/stderr capture utilities
@@ -116,4 +126,4 @@ pytest tests/integration/ -v        # Integration tests only
 - The `section()` method is the primary organizational unit (replaces old `cell()` API)
 - Plugin methods receive `self` as the Notebook instance — they can use `self._w()`, `self.cfg`, `self._asset_mgr`, etc.
 - Built-in plugins are auto-loaded; community plugins are discovered via `notebookmd.plugins` entry points
-- New widgets should be added as methods in the appropriate built-in plugin (or a new plugin)
+- New widgets should be added as methods in the appropriate built-in plugin module under `plugins/` (or a new plugin)

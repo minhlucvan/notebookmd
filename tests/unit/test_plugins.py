@@ -4,23 +4,21 @@ import pytest
 
 from notebookmd import Notebook, NotebookConfig
 from notebookmd.plugins import (
-    PluginSpec,
-    clear_registry,
-    get_registered_plugins,
-    load_default_plugins,
-    register_plugin,
-    unregister_plugin,
-)
-from notebookmd.plugins_builtin import (
     BUILTIN_PLUGINS,
     AnalyticsPlugin,
     ChartPlugin,
     DataPlugin,
     LayoutPlugin,
     MediaPlugin,
+    PluginSpec,
     StatusPlugin,
     TextPlugin,
     UtilityPlugin,
+    clear_registry,
+    get_registered_plugins,
+    load_default_plugins,
+    register_plugin,
+    unregister_plugin,
 )
 
 # ── PluginSpec base class ─────────────────────────────────────────────────────
