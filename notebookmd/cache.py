@@ -127,7 +127,7 @@ def _hash_arg(obj: Any) -> str:
                 h.update(obj.values.tobytes())
             return f"df:{h.hexdigest()}"
         if isinstance(obj, pd.Series):
-            return f"series:{hashlib.md5(obj.values.tobytes()).hexdigest()}"
+            return f"series:{hashlib.md5(obj.to_numpy().tobytes()).hexdigest()}"
     except (ImportError, Exception):
         pass
 

@@ -255,7 +255,7 @@ def _watch_with_watchdog(runner: Runner, script: Path) -> int:
             self._last_hash = _file_hash(script)
 
         def on_modified(self, event: FileModifiedEvent) -> None:  # type: ignore[override]
-            if Path(event.src_path).resolve() == script:
+            if Path(str(event.src_path)).resolve() == script:
                 new_hash = _file_hash(script)
                 if new_hash != self._last_hash:
                     self._last_hash = new_hash
