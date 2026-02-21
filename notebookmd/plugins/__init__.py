@@ -57,8 +57,8 @@ BUILTIN_PLUGINS: list[type[PluginSpec]] = [
 ]
 
 __all__ = [
-    "AnalyticsPlugin",
     "BUILTIN_PLUGINS",
+    "AnalyticsPlugin",
     "ChartPlugin",
     "DataPlugin",
     "LayoutPlugin",

@@ -24,16 +24,16 @@ from __future__ import annotations
 
 import functools
 import hashlib
-import inspect
 import json
 import logging
 import os
 import pickle
 import threading
 import time
-from dataclasses import dataclass, field
+from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, TypeVar, overload
+from typing import Any, TypeVar, overload
 
 logger = logging.getLogger("notebookmd.cache")
 

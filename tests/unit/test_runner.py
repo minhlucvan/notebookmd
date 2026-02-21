@@ -2,12 +2,8 @@
 
 import os
 from io import StringIO
-from pathlib import Path
-
-import pytest
 
 from notebookmd.runner import LiveWriter, RunConfig, Runner, RunResult, RunStatus
-
 
 # ---------------------------------------------------------------------------
 # RunResult
@@ -107,12 +103,7 @@ class TestRunner:
     def test_execute_simple_script(self, tmp_path):
         script = tmp_path / "test.py"
         out = tmp_path / "out.md"
-        script.write_text(
-            f'from notebookmd import nb\n'
-            f'n = nb("{out}", title="Test")\n'
-            f'n.header("Hello")\n'
-            f'n.save()\n'
-        )
+        script.write_text(f'from notebookmd import nb\nn = nb("{out}", title="Test")\nn.header("Hello")\nn.save()\n')
         runner = Runner(RunConfig())
         result = runner.execute(str(script))
         assert result.status == RunStatus.SUCCESS
@@ -132,11 +123,11 @@ class TestRunner:
         script = tmp_path / "test.py"
         out = tmp_path / "out.md"
         script.write_text(
-            f'import os\n'
+            f"import os\n"
             f'ticker = os.environ.get("NOTEBOOKMD_VAR_TICKER", "DEFAULT")\n'
-            f'from notebookmd import nb\n'
+            f"from notebookmd import nb\n"
             f'n = nb("{out}", title=ticker)\n'
-            f'n.save()\n'
+            f"n.save()\n"
         )
         runner = Runner(RunConfig(variables={"ticker": "MSFT"}))
         result = runner.execute(str(script))
@@ -147,12 +138,7 @@ class TestRunner:
     def test_execute_with_live_output(self, tmp_path):
         script = tmp_path / "test.py"
         out = tmp_path / "out.md"
-        script.write_text(
-            f'from notebookmd import nb\n'
-            f'n = nb("{out}", title="Live")\n'
-            f'n.header("Section")\n'
-            f'n.save()\n'
-        )
+        script.write_text(f'from notebookmd import nb\nn = nb("{out}", title="Live")\nn.header("Section")\nn.save()\n')
         stream = StringIO()
         runner = Runner(RunConfig(live=True, stream=stream))
         result = runner.execute(str(script))
@@ -164,11 +150,7 @@ class TestRunner:
     def test_execute_collects_output_path(self, tmp_path):
         script = tmp_path / "test.py"
         out = tmp_path / "report.md"
-        script.write_text(
-            f'from notebookmd import nb\n'
-            f'n = nb("{out}", title="Test")\n'
-            f'n.save()\n'
-        )
+        script.write_text(f'from notebookmd import nb\nn = nb("{out}", title="Test")\nn.save()\n')
         runner = Runner(RunConfig())
         result = runner.execute(str(script))
         assert result.output_path is not None

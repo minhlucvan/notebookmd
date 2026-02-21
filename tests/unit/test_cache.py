@@ -1,17 +1,16 @@
 """Tests for notebookmd.cache module."""
 
 import time
-from pathlib import Path
 
 import pytest
 
 from notebookmd.cache import (
+    _SENTINEL,
     CacheEntry,
     CacheManager,
     CacheStats,
     DiskStore,
     MemoryStore,
-    _SENTINEL,
     _hash_arg,
     _make_key,
     cache_data,
@@ -19,7 +18,6 @@ from notebookmd.cache import (
     get_cache_manager,
     reset_cache_manager,
 )
-
 
 # ---------------------------------------------------------------------------
 # CacheStats
