@@ -13,7 +13,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Generator, Sequence
+from typing import Any, Callable, Generator, Sequence
 
 from .assets import AssetManager
 from .widgets import render_column_separator, render_columns_end, render_tab_end, render_tab_start
@@ -82,6 +82,7 @@ class Notebook:
         self._counter = 0  # General-purpose counter for unique filenames
         self._chunks: list[str] = []
         self._plugins: dict[str, Any] = {}  # name -> PluginSpec instance
+        self._on_write: Callable[[str], None] | None = None  # Live output callback
 
         # Load all globally registered plugins
         self._load_default_plugins()
@@ -145,6 +146,8 @@ class Notebook:
     def _w(self, s: str) -> None:
         """Append a chunk of markdown to the internal buffer."""
         self._chunks.append(s)
+        if self._on_write is not None:
+            self._on_write(s)
 
     def _ensure_started(self) -> None:
         """Lazily initialize the report header on first use."""
