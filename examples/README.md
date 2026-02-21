@@ -1,0 +1,45 @@
+# notebookmd Examples
+
+Self-contained demos showcasing different notebookmd features. Each folder
+includes sample data, a run script, and generates a Markdown report with assets.
+
+## Demos
+
+| Demo | Description | Key Features |
+|------|-------------|--------------|
+| [financial-analysis](financial-analysis/) | Stock price analysis for VCB | Tables, summary stats, weekly aggregation, price/volume charts, CSV export |
+| [widget-showcase](widget-showcase/) | Tour of all 40+ widgets | Text, metrics, status, layout, charts, analytics helpers, celebration |
+| [sales-dashboard](sales-dashboard/) | KPI dashboard from regional sales data | Metric cards, rankings, change indicators, tabs, margin analysis |
+| [project-status](project-status/) | Sprint status report from task tracker | Badges, progress bars, team workload, estimation accuracy, risk callouts |
+| [data-exploration](data-exploration/) | Employee dataset exploration | Summary stats, department tabs, salary box plots, scatter plots, crosstabs |
+
+## Quick Start
+
+```bash
+# Install all optional dependencies
+pip install "notebookmd[all]"
+
+# Run any demo
+cd examples/financial-analysis
+python run.py
+
+# Or run from the project root
+python examples/financial-analysis/run.py
+```
+
+## Structure
+
+Each demo follows the same layout:
+
+```
+demo-name/
+├── README.md       # What the demo shows + how to run
+├── data/           # Sample CSV data (if needed)
+├── run.py          # Self-contained script
+└── output/         # Generated notebook.md + assets/
+```
+
+## Requirements
+
+- **Minimal**: `pip install notebookmd` — text-only widgets work without extras
+- **Full**: `pip install "notebookmd[all]"` — adds pandas tables and matplotlib charts

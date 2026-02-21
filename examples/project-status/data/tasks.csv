@@ -1,0 +1,17 @@
+task_id,title,assignee,status,priority,estimate_hours,actual_hours,sprint
+T-101,User authentication,Alice,completed,high,16,14,Sprint 1
+T-102,Database schema design,Bob,completed,high,24,28,Sprint 1
+T-103,REST API endpoints,Charlie,completed,high,32,30,Sprint 1
+T-104,Unit test framework,Alice,completed,medium,8,10,Sprint 1
+T-105,CI/CD pipeline setup,Diana,completed,medium,12,11,Sprint 1
+T-201,Product listing page,Eve,completed,high,20,22,Sprint 2
+T-202,Shopping cart logic,Bob,completed,high,24,26,Sprint 2
+T-203,Payment integration,Charlie,in_progress,high,32,20,Sprint 2
+T-204,Email notifications,Alice,in_progress,medium,16,8,Sprint 2
+T-205,Search functionality,Diana,in_progress,medium,20,12,Sprint 2
+T-206,Admin dashboard,Eve,pending,low,24,0,Sprint 3
+T-301,Performance optimization,Bob,pending,high,16,0,Sprint 3
+T-302,Mobile responsive UI,Charlie,pending,medium,20,0,Sprint 3
+T-303,Documentation,Diana,pending,low,12,0,Sprint 3
+T-304,Load testing,Alice,pending,medium,8,0,Sprint 3
+T-305,Security audit,Eve,blocked,high,16,4,Sprint 3
