@@ -39,31 +39,47 @@ n.write(
 n.subheader("1. Jupyter Notebooks Are Not Production-Ready")
 n.write(
     "Developers consistently complain about taking Jupyter notebooks to production. "
+    "**87% of data science projects never make it to production** (VentureBeat). "
     "Common frustrations include:\n\n"
-    '- *"Jupyter is great for exploration, terrible for automation"* — a sentiment echoed across r/datascience\n'
-    '- Hidden state and out-of-order cell execution cause unreproducible results\n'
-    '- `.ipynb` files are JSON blobs that create merge conflicts in git\n'
-    '- No good way to run notebooks in CI/CD pipelines without heavy tooling (papermill, nbconvert)\n'
-    '- Exporting to Markdown/HTML loses interactivity and often breaks formatting'
+    '- *"Jupyter notebooks were fun to use for a bit, then I hit the inevitable wall of '
+    "'ok, now let's turn this into a real, properly built script, but now everything is "
+    "breaking for inexplicable reasons.'\"* — [Hacker News](https://news.ycombinator.com/item?id=17856700)\n"
+    "- Hidden state and out-of-order cell execution cause unreproducible results\n"
+    "- `.ipynb` files are JSON blobs that create merge conflicts in git — *\"try diffing a big JSON mess that mixes input and output\"*\n"
+    "- No good way to run notebooks in CI/CD pipelines without heavy tooling (papermill, nbconvert)\n"
+    "- Exporting to Markdown/HTML loses interactivity and often breaks formatting\n"
+    '- *"There are many problems with producing a Jupyter notebook as a report. Nobody else wants to read it. '
+    "Technical people don't want to spin up a Jupyter server to run it, and non-technical people can't even render it.\"*"
 )
 
 n.subheader("2. Streamlit Requires a Running Server")
 n.write(
-    "Streamlit is loved for interactive dashboards but has fundamental limitations for batch/agent workflows:\n\n"
-    '- *"I just want to generate a report, not run a web server"*\n'
-    "- Can't be used in CI/CD, cron jobs, or agent pipelines\n"
-    "- Overkill for one-off analysis results that need to be saved and shared\n"
-    "- No artifact output — results exist only while the server runs"
+    "Streamlit is loved for interactive dashboards but has fundamental limitations for batch/agent workflows. "
+    "A [detailed critique on tildehacker.com](https://tildehacker.com/streamlit-is-a-mess) titled "
+    "\"Streamlit Is a Mess\" observes:\n\n"
+    '- *"The most critical issue with Streamlit isn\'t what it includes, but what it omits: a clean, enforced architecture."*\n'
+    "- The entire Python file re-runs on every user interaction — causing performance issues at scale\n"
+    "- Can't be used in CI/CD, cron jobs, or agent pipelines — requires a running web server\n"
+    "- Overkill for static reports — a Markdown file is just a file; Streamlit needs a running process\n"
+    "- No artifact output — results exist only while the server runs\n"
+    '- *"No fully supported enterprise deployment solution"* — lacks auth, scaling, and lifecycle management (Plotly blog)'
 )
 
 n.subheader("3. AI Agents Lack Structured Output Tools")
 n.write(
-    "As AI agents become mainstream for data analysis, a gap has emerged:\n\n"
-    '- Agents default to `print()` statements and unformatted text dumps\n'
-    '- LLM-generated Markdown is inconsistent — tables break, formatting varies\n'
+    "As AI agents become mainstream for data analysis, a gap has emerged. The "
+    "[LangChain State of Agent Engineering 2025](https://www.langchain.com/state-of-agent-engineering) "
+    "report (1,340 respondents) found **32% cited output quality as their primary blocker** "
+    "for production agents:\n\n"
+    "- Agents default to `print()` statements and unformatted text dumps\n"
+    "- **Formatting problems are 2.66x more common** in AI-generated output vs human code "
+    "([CodeRabbit AI vs Human Report](https://www.coderabbit.ai/blog/state-of-ai-vs-human-code-generation-report))\n"
+    "- **Missing context is reported by 65% of developers** as the primary cause of poor AI output quality "
+    "([Qodo State of AI Code Quality](https://www.qodo.ai/reports/state-of-ai-code-quality/))\n"
     "- No standard way for agents to produce charts, metrics, and tables together\n"
-    '- *"I want my agent to produce a report a stakeholder can actually read"*\n'
-    "- Agent frameworks (LangChain, CrewAI, Claude) focus on reasoning, not presentation"
+    "- Agent frameworks (LangChain, CrewAI, Claude) focus on reasoning, not presentation\n"
+    "- Cloudflare recognized this gap: *\"A simple `## About Us` in Markdown costs ~3 tokens; "
+    "its HTML equivalent burns 12-15\"* — Markdown is becoming the AI lingua franca"
 )
 
 n.subheader("4. The 'Last Mile' of Data Analysis")
@@ -73,6 +89,28 @@ n.write(
     "- Saving charts, linking them in reports, managing file paths — all manual\n"
     "- No single tool combines metrics + tables + charts + text in one API\n"
     '- *"80% of my time is analysis, 20% is making the output look presentable"*'
+)
+
+n.subheader("5. The Ecosystem Gap")
+n.write(
+    "The existing Python reporting tools fall into three categories, "
+    "none of which fully address simple, programmatic report generation:"
+)
+n.table(
+    pd.DataFrame(
+        [
+            ["Interactive apps", "Streamlit, Dash, Panel", "Require running servers; overkill for static reports"],
+            ["Notebook-based", "Jupyter + nbconvert, Quarto", "Version control issues, export bugs, production gap"],
+            ["Low-level markdown", "mdutils, SnakeMD", "Just text formatting; no data tables, charts, or metrics"],
+            ["Abandoned", "Datapane (shut down)", "Was the closest to a data reporting tool; no longer maintained"],
+        ],
+        columns=["Category", "Tools", "Problem"],
+    ),
+    name="Current Ecosystem Gaps",
+)
+n.write(
+    "**The gap notebookmd fills:** Streamlit-like API + static Markdown output + "
+    "data-native widgets + zero-dependency core + AI agent friendly."
 )
 
 # ─────────────────────────────────────────────────────────────
