@@ -1,58 +1,8 @@
-# Widget Showcase Demo
-
-A comprehensive tour of every widget available in notebookmd — the full
-Streamlit-compatible API rendered as clean Markdown.
-
-## What This Demo Shows
-
-- **Text**: title, header, subheader, caption, text, latex, md, code, echo
-- **Metrics**: metric cards, metric rows with deltas
-- **Analytics**: stat, stats, badge, change, ranking
-- **JSON**: expanded and compact display
-- **Status**: success, info, warning, error, progress, toast, connection_status
-- **Layout**: expanders, tabs, columns, containers
-- **Data**: dataframe, summary, key-value tables
-- **Charts**: line_chart, bar_chart, area_chart
-- **Export**: CSV export, balloons, snow
-
-## Files
-
-```
-widget-showcase/
-├── README.md       # This file
-├── run.py          # Showcase script
-└── output/         # Generated report + assets
-```
-
-## Requirements
-
-```bash
-pip install "notebookmd[all]"   # Full feature set
-# Or minimal (text-only widgets still work):
-pip install notebookmd
-```
-
-## Run
-
-```bash
-cd examples/widget-showcase
-python run.py
-```
-
-## Sample Output
-
-The script generates `output/notebook.md` demonstrating every widget.
-Charts and exported CSVs are saved to `output/assets/`.
-
----
-
-<!-- BEGIN SAMPLE OUTPUT -->
-
 A comprehensive tour of every widget available in `notebookmd`.
 
 # Widget Showcase
 
-_Generated: 2026-02-21_
+_Generated: 2026-02-21 08:12:19_
 
 ## Artifacts
 
@@ -221,6 +171,7 @@ The analysis uses a multi-factor model combining:
 - **Momentum**: 6-month and 12-month price returns
 - **Quality**: ROE, debt-to-equity, earnings stability
 
+
 </details>
 
 <details>
@@ -229,6 +180,7 @@ The analysis uses a multi-factor model combining:
 - HOSE/HNX market data via vnstock API
 - Financial statements from company filings
 - Macro indicators from GSO/SBV
+
 
 </details>
 
@@ -319,6 +271,18 @@ This content is inside a **bordered container**.
 | 2026-01-01 00:00:00 | 95.0    | 1000000  | 45.0  |
 | 2026-01-02 00:00:00 | 95.8    | 1050000  | 43.8  |
 | 2026-01-03 00:00:00 | 96.6    | 1100000  | 42.6  |
+| 2026-01-04 00:00:00 | 97.4    | 1150000  | 41.4  |
+| 2026-01-05 00:00:00 | 98.2    | 1200000  | 40.2  |
+| 2026-01-06 00:00:00 | 99.0    | 1250000  | 49.0  |
+| 2026-01-07 00:00:00 | 99.8    | 1300000  | 47.8  |
+| 2026-01-08 00:00:00 | 98.5    | 1350000  | 46.6  |
+| 2026-01-09 00:00:00 | 99.3    | 1400000  | 45.4  |
+| 2026-01-10 00:00:00 | 100.1   | 1450000  | 44.2  |
+| 2026-01-11 00:00:00 | 100.9   | 1500000  | 53.0  |
+| 2026-01-12 00:00:00 | 101.7   | 1550000  | 51.8  |
+| 2026-01-13 00:00:00 | 102.5   | 1600000  | 50.6  |
+| 2026-01-14 00:00:00 | 103.3   | 1650000  | 49.4  |
+| 2026-01-15 00:00:00 | 102.0   | 1700000  | 48.2  |
 | …                   | …       | …        | …     |
 
 _shape: 20 rows × 4 cols_
@@ -374,4 +338,3 @@ _shape: 20 rows × 4 cols_
 
 > ❄️❄️❄️ **Snow!**
 
-<!-- END SAMPLE OUTPUT -->

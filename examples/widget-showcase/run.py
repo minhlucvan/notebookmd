@@ -47,7 +47,7 @@ HERE = Path(__file__).resolve().parent
 
 def main():
     cfg = NotebookConfig(max_table_rows=15)
-    n = nb(HERE / "output" / "notebook.md", title="Widget Showcase", cfg=cfg)
+    n = nb(HERE / "README.md", title="Widget Showcase", cfg=cfg)
 
     n.write("A comprehensive tour of every widget available in `notebookmd`.")
 

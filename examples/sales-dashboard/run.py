@@ -43,7 +43,7 @@ HERE = Path(__file__).resolve().parent
 
 def main():
     cfg = NotebookConfig(max_table_rows=25)
-    n = nb(HERE / "output" / "notebook.md", title="Sales Dashboard — January 2026", cfg=cfg)
+    n = nb(HERE / "README.md", title="Sales Dashboard — January 2026", cfg=cfg)
 
     if not HAS_PANDAS:
         n.warning("pandas is required for this demo. Install with: `pip install 'notebookmd[pandas]'`")

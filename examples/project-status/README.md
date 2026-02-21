@@ -1,55 +1,6 @@
-# Project Status Report Demo
-
-A sprint status report built from task tracking data, demonstrating
-status elements, progress bars, badges, and team analytics.
-
-## What This Demo Shows
-
-- Sprint health badges and progress bars
-- Task breakdown by status and priority (pie + bar charts)
-- Team workload table with completion percentages
-- Estimation accuracy analysis with status callouts
-- Estimated vs actual hours comparison chart
-- Risk and blocker highlighting
-- Connection status indicators
-- Multi-table CSV export
-
-## Files
-
-```
-project-status/
-├── README.md           # This file
-├── data/
-│   └── tasks.csv       # 16 tasks across 3 sprints
-├── run.py              # Report script
-└── output/             # Generated report + chart assets
-```
-
-## Requirements
-
-```bash
-pip install "notebookmd[all]"   # pandas + matplotlib
-```
-
-## Run
-
-```bash
-cd examples/project-status
-python run.py
-```
-
-## Sample Output
-
-Generates `output/notebook.md` with sprint breakdowns, team metrics,
-risk callouts, and charts in `output/assets/`.
-
----
-
-<!-- BEGIN SAMPLE OUTPUT -->
-
 # Project Status Report
 
-_Generated: 2026-02-21_
+_Generated: 2026-02-21 08:12:23_
 
 ## Artifacts
 
@@ -175,6 +126,7 @@ _shape: 5 rows × 6 cols_
 
 > ✅ **Success:** **Eve**: 26h actual vs 60h estimated (43% — under estimate)
 
+
 </details>
 
 ## Hours Tracking
@@ -214,4 +166,3 @@ _shape: 2 rows × 4 cols_
 
 > ✅ **Success:** Status report generation complete.
 
-<!-- END SAMPLE OUTPUT -->

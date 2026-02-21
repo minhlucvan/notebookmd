@@ -1,54 +1,6 @@
-# Financial Analysis Demo
-
-A realistic stock analysis workflow using notebookmd, demonstrating how AI agents
-can produce structured financial reports.
-
-## What This Demo Shows
-
-- Loading CSV data into pandas DataFrames
-- Price tables with summary statistics
-- Weekly aggregation with key-value metrics
-- Metric cards for KPIs (return, range, volume)
-- Matplotlib price chart with high-low band
-- Volume bar chart with color-coded up/down days
-- CSV export for downstream pipelines
-
-## Files
-
-```
-financial-analysis/
-├── README.md           # This file
-├── data/
-│   └── stock_prices.csv  # 30 days of VCB trading data
-├── run.py              # Analysis script
-└── output/             # Generated report + chart assets
-```
-
-## Requirements
-
-```bash
-pip install "notebookmd[all]"   # pandas + matplotlib
-```
-
-## Run
-
-```bash
-cd examples/financial-analysis
-python run.py
-```
-
-## Sample Output
-
-The script generates `output/notebook.md` with embedded chart images and
-exported CSV files in the `output/assets/` directory.
-
----
-
-<!-- BEGIN SAMPLE OUTPUT -->
-
 # VCB Stock Analysis
 
-_Generated: 2026-02-21_
+_Generated: 2026-02-21 08:12:17_
 
 ## Artifacts
 
@@ -163,6 +115,7 @@ _shape: 8 rows × 5 cols_
 
 ## Interpretation
 
+
 - VCB shows a **steady upward trend** over the sample period, gaining **9.9%**.
 - The high-low band remains narrow, indicating **low intraday volatility**.
 - Volume increases in the latter half suggest **growing institutional interest**.
@@ -174,4 +127,3 @@ _shape: 8 rows × 5 cols_
 2. Overlay technical indicators (RSI, MACD, Bollinger Bands)
 3. Check macro regime alignment for timing signals
 
-<!-- END SAMPLE OUTPUT -->

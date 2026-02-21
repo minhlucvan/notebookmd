@@ -1,55 +1,6 @@
-# Sales Dashboard Demo
-
-A KPI-driven sales dashboard built from regional sales data, demonstrating
-how notebookmd can generate executive-ready reports.
-
-## What This Demo Shows
-
-- Executive summary with metric cards and badges
-- Week-over-week change indicators
-- Regional performance rankings
-- Product comparison with tabbed views
-- Horizontal bar charts for regional breakdown
-- Dual-axis weekly trend charts
-- Margin analysis with expander insights
-- Multi-table CSV export
-
-## Files
-
-```
-sales-dashboard/
-├── README.md           # This file
-├── data/
-│   └── sales.csv       # 5 weeks × 4 regions × 2 products
-├── run.py              # Dashboard script
-└── output/             # Generated report + chart assets
-```
-
-## Requirements
-
-```bash
-pip install "notebookmd[all]"   # pandas + matplotlib
-```
-
-## Run
-
-```bash
-cd examples/sales-dashboard
-python run.py
-```
-
-## Sample Output
-
-Generates `output/notebook.md` with KPI cards, ranking tables, trend charts,
-and exported CSVs in `output/assets/`.
-
----
-
-<!-- BEGIN SAMPLE OUTPUT -->
-
 # Sales Dashboard — January 2026
 
-_Generated: 2026-02-21_
+_Generated: 2026-02-21 08:12:21_
 
 ## Artifacts
 
@@ -174,6 +125,7 @@ _shape: 8 rows × 5 cols_
 
 > ⚠️ **Warning:** Lowest margin: **East / Widget B** at 40.0%
 
+
 </details>
 
 ## Data Export
@@ -186,4 +138,3 @@ _shape: 8 rows × 5 cols_
 
 > ✅ **Success:** Dashboard generation complete.
 
-<!-- END SAMPLE OUTPUT -->

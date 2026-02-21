@@ -1,7 +1,7 @@
 # notebookmd Examples
 
 Self-contained demos showcasing different notebookmd features. Each folder
-includes sample data, a run script, and generates a Markdown report with assets.
+includes sample data, a run script, and a generated README.md report with assets.
 
 ## Demos
 
@@ -33,11 +33,13 @@ Each demo follows the same layout:
 
 ```
 demo-name/
-├── README.md       # What the demo shows + how to run
-├── data/           # Sample CSV data (if needed)
-├── run.py          # Self-contained script
-└── output/         # Generated notebook.md + assets/
+├── README.md       # Generated report (output of run.py)
+├── assets/         # Generated charts + exported CSVs
+├── data/           # Sample input data (if needed)
+└── run.py          # Self-contained script
 ```
+
+Running `python run.py` regenerates `README.md` and `assets/` in place.
 
 ## Requirements
 

@@ -46,7 +46,7 @@ HERE = Path(__file__).resolve().parent
 
 def main():
     cfg = NotebookConfig(max_table_rows=20)
-    n = nb(HERE / "output" / "notebook.md", title="VCB Stock Analysis", cfg=cfg)
+    n = nb(HERE / "README.md", title="VCB Stock Analysis", cfg=cfg)
 
     # ── Overview ──
     n.section("Overview")
