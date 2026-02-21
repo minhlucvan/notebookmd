@@ -238,6 +238,42 @@ n.save()
 
 ---
 
+## CLI
+
+notebookmd includes a command-line interface for running report scripts:
+
+```bash
+# Run a report script
+notebookmd run analysis.py
+
+# Live output — stream Markdown to stderr as it's generated
+notebookmd run analysis.py --live
+
+# Watch mode — re-run automatically when the script changes
+notebookmd run analysis.py --watch
+
+# Inject variables into the script
+notebookmd run report.py --var ticker=AAPL --var period=1y
+
+# Combine them
+notebookmd run analysis.py --live --watch --var ticker=AAPL
+```
+
+| Command | Description |
+|---------|-------------|
+| `notebookmd run <script>` | Execute a report script |
+| `notebookmd run --live` | Stream Markdown output in real time |
+| `notebookmd run --watch` | Re-run on file changes |
+| `notebookmd run --var KEY=VALUE` | Inject variables into the script namespace |
+| `notebookmd run --output, -o` | Override the output file path |
+| `notebookmd cache show` | Display cache statistics |
+| `notebookmd cache clear` | Clear cached data |
+| `notebookmd version` | Show installed version |
+
+Variables passed with `--var` are also available as environment variables (`NOTEBOOKMD_VAR_TICKER`, etc.).
+
+---
+
 ## API Reference
 
 ### Factory
