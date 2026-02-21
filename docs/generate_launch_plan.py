@@ -1,7 +1,8 @@
 """Generate the community launch plan report for notebookmd."""
 
 import pandas as pd
-from notebookmd import nb, NotebookConfig
+
+from notebookmd import nb
 
 n = nb("docs/community-launch-plan.md", title="notebookmd — Community Launch Plan")
 
@@ -18,12 +19,14 @@ n.write(
     "converting awareness into GitHub stars, PyPI installs, and community contributors."
 )
 
-n.metric_row([
-    {"label": "Target Platforms", "value": "5"},
-    {"label": "Content Pieces", "value": "12+"},
-    {"label": "Launch Window", "value": "2 weeks"},
-    {"label": "Goal: GitHub Stars", "value": "500+"},
-])
+n.metric_row(
+    [
+        {"label": "Target Platforms", "value": "5"},
+        {"label": "Content Pieces", "value": "12+"},
+        {"label": "Launch Window", "value": "2 weeks"},
+        {"label": "Goal: GitHub Stars", "value": "500+"},
+    ]
+)
 
 # ─────────────────────────────────────────────────────────────
 # Community Pain Points
@@ -45,7 +48,7 @@ n.write(
     "'ok, now let's turn this into a real, properly built script, but now everything is "
     "breaking for inexplicable reasons.'\"* — [Hacker News](https://news.ycombinator.com/item?id=17856700)\n"
     "- Hidden state and out-of-order cell execution cause unreproducible results\n"
-    "- `.ipynb` files are JSON blobs that create merge conflicts in git — *\"try diffing a big JSON mess that mixes input and output\"*\n"
+    '- `.ipynb` files are JSON blobs that create merge conflicts in git — *"try diffing a big JSON mess that mixes input and output"*\n'
     "- No good way to run notebooks in CI/CD pipelines without heavy tooling (papermill, nbconvert)\n"
     "- Exporting to Markdown/HTML loses interactivity and often breaks formatting\n"
     '- *"There are many problems with producing a Jupyter notebook as a report. Nobody else wants to read it. '
@@ -56,7 +59,7 @@ n.subheader("2. Streamlit Requires a Running Server")
 n.write(
     "Streamlit is loved for interactive dashboards but has fundamental limitations for batch/agent workflows. "
     "A [detailed critique on tildehacker.com](https://tildehacker.com/streamlit-is-a-mess) titled "
-    "\"Streamlit Is a Mess\" observes:\n\n"
+    '"Streamlit Is a Mess" observes:\n\n'
     '- *"The most critical issue with Streamlit isn\'t what it includes, but what it omits: a clean, enforced architecture."*\n'
     "- The entire Python file re-runs on every user interaction — causing performance issues at scale\n"
     "- Can't be used in CI/CD, cron jobs, or agent pipelines — requires a running web server\n"
@@ -78,8 +81,8 @@ n.write(
     "([Qodo State of AI Code Quality](https://www.qodo.ai/reports/state-of-ai-code-quality/))\n"
     "- No standard way for agents to produce charts, metrics, and tables together\n"
     "- Agent frameworks (LangChain, CrewAI, Claude) focus on reasoning, not presentation\n"
-    "- Cloudflare recognized this gap: *\"A simple `## About Us` in Markdown costs ~3 tokens; "
-    "its HTML equivalent burns 12-15\"* — Markdown is becoming the AI lingua franca"
+    '- Cloudflare recognized this gap: *"A simple `## About Us` in Markdown costs ~3 tokens; '
+    'its HTML equivalent burns 12-15"* — Markdown is becoming the AI lingua franca'
 )
 
 n.subheader("4. The 'Last Mile' of Data Analysis")
@@ -173,10 +176,10 @@ n.info(
 
 n.write("**Post 1: r/Python (Primary Launch — viral hook)**")
 n.info(
-    "This post uses the \"AI agents can't use Jupyter, so I built them their own notebook\" angle. "
+    'This post uses the "AI agents can\'t use Jupyter, so I built them their own notebook" angle. '
     "This framing works because it: (1) taps into the AI/agent hype, (2) acknowledges a universally "
     "known tool (Jupyter), (3) presents a clear problem→solution narrative, and (4) creates curiosity — "
-    "\"what does a notebook for AI agents even look like?\""
+    '"what does a notebook for AI agents even look like?"'
 )
 n.code(
     """Title: AI agents can't use Jupyter notebooks, so I built them their own — notebookmd
@@ -362,10 +365,10 @@ n.info(
 
 n.write("**Title options (ranked by viral potential):**")
 n.write(
-    '1. `Show HN: notebookmd — AI agents can\'t use Jupyter, so I built them their own notebook` *(strongest hook)*\n'
-    '2. `Show HN: notebookmd — Streamlit-like API that outputs Markdown instead of a web app`\n'
-    '3. `Show HN: notebookmd — The notebook for AI agents (Python to Markdown reports)`\n'
-    '4. `Show HN: A zero-dependency Python library for generating structured Markdown reports`'
+    "1. `Show HN: notebookmd — AI agents can't use Jupyter, so I built them their own notebook` *(strongest hook)*\n"
+    "2. `Show HN: notebookmd — Streamlit-like API that outputs Markdown instead of a web app`\n"
+    "3. `Show HN: notebookmd — The notebook for AI agents (Python to Markdown reports)`\n"
+    "4. `Show HN: A zero-dependency Python library for generating structured Markdown reports`"
 )
 
 n.write("**First comment (critical for HN):**")
@@ -716,7 +719,7 @@ Open demo_report.md to see the output!""",
 )
 n.write(
     "**Why this works:** Every Reddit post, every HN comment, every tweet should end with "
-    "these two lines. The reader can go from \"interesting\" to \"wow\" in under 30 seconds. "
+    'these two lines. The reader can go from "interesting" to "wow" in under 30 seconds. '
     "Rich's `python -m rich` is cited by Will McGugan as one of the key drivers of adoption."
 )
 
@@ -772,10 +775,10 @@ n.write(
     "pre-installed and a demo script ready to run\n"
     "- **Google Colab notebook** — A Colab notebook that `!pip install notebookmd`, runs a "
     "demo, and shows the generated Markdown inline\n"
-    "- **Replit template** — A pre-configured Replit with a \"Run\" button\n"
+    '- **Replit template** — A pre-configured Replit with a "Run" button\n'
     "- **Copy-paste playground in docs** — An interactive code editor on the docs site "
     "that renders Markdown output in real-time\n\n"
-    "Even one of these dramatically reduces the gap between \"saw a post\" and \"tried it.\""
+    'Even one of these dramatically reduces the gap between "saw a post" and "tried it."'
 )
 
 n.subheader("Tactic 4: Before/After Visual Proof (from Rich)")
@@ -837,13 +840,13 @@ n.badge("COMPLETE", style="success")""",
 n.subheader("Tactic 6: Social Proof in Every Post (from FastAPI)")
 n.write(
     "**What FastAPI did:** Every mention included logos of companies using it (Microsoft, "
-    "Netflix, Uber). This transformed \"random library\" into \"trusted tool.\"\n\n"
+    'Netflix, Uber). This transformed "random library" into "trusted tool."\n\n'
     "**What notebookmd should do immediately after launch:**\n\n"
-    "- Add a \"Used by\" section to the README as soon as anyone notable uses it\n"
-    "- Screenshot any positive tweets/comments and add to a \"What people are saying\" section\n"
+    '- Add a "Used by" section to the README as soon as anyone notable uses it\n'
+    '- Screenshot any positive tweets/comments and add to a "What people are saying" section\n'
     "- If any agent framework (LangChain, CrewAI) integrates it, feature that prominently\n"
     "- Track GitHub stars publicly (star-history.com badge in README)\n"
-    "- After the first blog mention, add \"Featured in\" badges"
+    '- After the first blog mention, add "Featured in" badges'
 )
 
 n.subheader("Tactic 7: The Agent Demo That Sells Itself")
@@ -851,13 +854,13 @@ n.write(
     "**Unique to notebookmd — no comparable library has done this:**\n\n"
     "Create a short script or video showing an AI agent (Claude or GPT) analyzing a CSV "
     "file and producing a notebookmd report in real-time. The workflow:\n\n"
-    "1. User gives agent a CSV file and asks \"analyze this data\"\n"
+    '1. User gives agent a CSV file and asks "analyze this data"\n'
     "2. Agent writes a Python script using notebookmd\n"
     "3. Script runs, generates `report.md` with metrics, tables, charts\n"
     "4. Show the rendered Markdown — clean, structured, professional\n\n"
     "**This demo is the killer app.** No other library can show this workflow. "
     "It makes the value proposition visceral: *\"this is what your agent's output "
-    "looks like with notebookmd vs without it.\"*\n\n"
+    'looks like with notebookmd vs without it."*\n\n'
     "Post this as:\n"
     "- A 30-second GIF in the GitHub README\n"
     "- A screen recording for Product Hunt\n"
@@ -868,7 +871,7 @@ n.write(
 n.subheader("Tactic 8: Copy-Paste Everywhere")
 n.write(
     "**What all successful launches share:** Every code example is copy-pasteable. "
-    "No placeholder variables, no ... ellipsis, no \"configure your settings here.\"\n\n"
+    'No placeholder variables, no ... ellipsis, no "configure your settings here."\n\n'
     "**Rules for notebookmd examples:**\n\n"
     "- Every code block must run as-is (use inline data, not external files)\n"
     "- Always show the install command right before the code\n"
@@ -907,9 +910,9 @@ n.section("Lessons from Successful Open-Source Launches")
 n.subheader("What Works on Reddit")
 n.write(
     '- **Lead with the problem, not the solution.** Posts titled "I was frustrated with X, so I built Y" '
-    "consistently outperform \"Check out my new library\" posts\n"
+    'consistently outperform "Check out my new library" posts\n'
     "- **Show real output.** Screenshots/GIFs of actual generated reports get 3-5x more engagement\n"
-    "- **Explain design decisions.** r/Python loves architecture discussions — \"why zero deps?\" "
+    '- **Explain design decisions.** r/Python loves architecture discussions — "why zero deps?" '
     '"why Markdown?" are great conversation starters\n'
     "- **Be present in comments.** The author responding to every question signals commitment\n"
     "- **Don't cross-post simultaneously.** Stagger by 1-2 hours to avoid appearing spammy"
@@ -944,15 +947,13 @@ n.write(
 
 n.subheader("Case Studies: Successful Similar Launches")
 
-n.write(
-    "These Python/dev-tool launches demonstrate patterns directly applicable to notebookmd."
-)
+n.write("These Python/dev-tool launches demonstrate patterns directly applicable to notebookmd.")
 
 n.table(
     pd.DataFrame(
         [
             ["Rich (Will McGugan)", "49,000+ stars", "362 pts on HN", "Visual GIFs of terminal output"],
-            ["Marimo", "10,000+ stars", "448 pts, 106 comments on HN", "\"Notebooks are broken\" narrative"],
+            ["Marimo", "10,000+ stars", "448 pts, 106 comments on HN", '"Notebooks are broken" narrative'],
             ["MarkItDown (Microsoft)", "86,000+ stars", "Top of HN", "Universal need + simple API"],
             ["FastAPI", "80,000+ stars", "Top of HN", "Comparison table vs Flask/Django"],
             ["Cursor", "PH Product of Year '24", "5 PH launches", "Iterated with multiple launches"],
@@ -966,21 +967,21 @@ n.table(
 n.write(
     "**Rich by Will McGugan** — The gold standard for Python library launches. "
     "Will posted to r/Python with a GIF demo, stayed in comments answering every question, "
-    "and grew from zero to 49,000+ stars. His key insight: *\"The sweet-spot is closer to "
-    "early than finished\"* — launch when you have a core feature and a decent README. "
+    'and grew from zero to 49,000+ stars. His key insight: *"The sweet-spot is closer to '
+    'early than finished"* — launch when you have a core feature and a decent README. '
     "Rich's inherently visual nature (formatted terminal output) drove massive sharing. "
     "notebookmd can replicate this with before/after screenshots of raw vs structured Markdown output.\n\n"
     "**Marimo** — The most directly comparable launch. A Python notebook tool positioned as a "
     "better alternative to Jupyter. Its Show HN post earned 448 points and 106 comments because "
     "it solved universally recognized pain points (Jupyter's hidden state, unreproducible execution, "
-    "JSON file format that breaks git). The title was crystal clear: *\"Marimo — an open-source reactive "
-    "notebook for Python.\"* They launched multiple times (5+ Show HN posts over 2024-2025), each "
+    'JSON file format that breaks git). The title was crystal clear: *"Marimo — an open-source reactive '
+    'notebook for Python."* They launched multiple times (5+ Show HN posts over 2024-2025), each '
     "building on the last (WASM version, VS Code extension, cloud workspace).\n\n"
     "**MarkItDown by Microsoft** — A document-to-Markdown converter that reached 86,000+ stars. "
     "Relevant because it occupies the same Python + Markdown generation space. Success came from "
     "solving a universal need with a dead-simple API.\n\n"
-    "**Key takeaway for notebookmd:** Frame against a known tool (\"Streamlit-like API, but outputs "
-    "Markdown\"), emphasize zero dependencies (HN loves minimal tools), target the AI agent use case "
+    '**Key takeaway for notebookmd:** Frame against a known tool ("Streamlit-like API, but outputs '
+    'Markdown"), emphasize zero dependencies (HN loves minimal tools), target the AI agent use case '
     "(hottest trend in 2025-2026), and invest heavily in visual proof (GIF of code → rendered output)."
 )
 
@@ -989,8 +990,8 @@ n.write(
     "Analyzing all successful launches reveals 6 patterns that appear everywhere:\n\n"
     "1. **Solve a recognized pain point** — Every viral launch addresses a problem people already have. "
     "The problem should be explainable in one sentence.\n"
-    "2. **Crystal-clear positioning in one line** — \"An open-source reactive notebook for Python\" (Marimo), "
-    "\"Python lib for rich text, markdown, tables in the terminal\" (Rich)\n"
+    '2. **Crystal-clear positioning in one line** — "An open-source reactive notebook for Python" (Marimo), '
+    '"Python lib for rich text, markdown, tables in the terminal" (Rich)\n'
     "3. **Visual proof is the highest-leverage investment** — Every successful launch featured a GIF or screenshot. "
     "McGugan explicitly credits Rich's visual nature as a key factor.\n"
     "4. **Ship early, not perfect** — Early community feedback shapes the product. Waiting for feature-complete "
@@ -1077,7 +1078,7 @@ n.write(
 n.subheader("GitHub Ecosystem")
 n.write(
     "- Ensure the GitHub repo has: descriptive README, topics/tags, license, contributing guide\n"
-    "- Add **\"good first issue\"** labels to 3-5 issues for new contributors\n"
+    '- Add **"good first issue"** labels to 3-5 issues for new contributors\n'
     "- Create a **GitHub Discussion** for community Q&A\n"
     "- Consider a **GitHub Pages** site for documentation"
 )
@@ -1088,20 +1089,24 @@ n.write(
 n.section("Success Metrics & Goals")
 
 n.subheader("Week 1 Targets")
-n.metric_row([
-    {"label": "GitHub Stars", "value": "200+"},
-    {"label": "PyPI Downloads", "value": "500+"},
-    {"label": "Reddit Upvotes", "value": "100+"},
-    {"label": "HN Points", "value": "50+"},
-])
+n.metric_row(
+    [
+        {"label": "GitHub Stars", "value": "200+"},
+        {"label": "PyPI Downloads", "value": "500+"},
+        {"label": "Reddit Upvotes", "value": "100+"},
+        {"label": "HN Points", "value": "50+"},
+    ]
+)
 
 n.subheader("Month 1 Targets")
-n.metric_row([
-    {"label": "GitHub Stars", "value": "500+"},
-    {"label": "PyPI Downloads", "value": "2,000+"},
-    {"label": "Contributors", "value": "5+"},
-    {"label": "Blog Mentions", "value": "3+"},
-])
+n.metric_row(
+    [
+        {"label": "GitHub Stars", "value": "500+"},
+        {"label": "PyPI Downloads", "value": "2,000+"},
+        {"label": "Contributors", "value": "5+"},
+        {"label": "Blog Mentions", "value": "3+"},
+    ]
+)
 
 n.subheader("Tracking")
 n.write(
@@ -1119,7 +1124,7 @@ n.write(
 # ─────────────────────────────────────────────────────────────
 n.section("Risks & Mitigation")
 
-n.warning("**Risk: \"Why not just use Jinja2 templates?\"**")
+n.warning('**Risk: "Why not just use Jinja2 templates?"**')
 n.write(
     "**Response:** Jinja2 is a general-purpose template engine — you still have to design "
     "the template, handle data formatting, manage assets, and write the rendering logic. "
@@ -1127,7 +1132,7 @@ n.write(
     "between building a car and driving one."
 )
 
-n.warning("**Risk: \"Markdown is too limited for real reports\"**")
+n.warning('**Risk: "Markdown is too limited for real reports"**')
 n.write(
     "**Response:** Markdown is intentionally the output format because it's universal — "
     "readable by LLMs, renderable by GitHub, convertible to HTML/PDF via pandoc. "
@@ -1135,7 +1140,7 @@ n.write(
     "tables that render well everywhere."
 )
 
-n.warning("**Risk: \"This is just a print() wrapper\"**")
+n.warning('**Risk: "This is just a print() wrapper"**')
 n.write(
     "**Response:** Show the output. The structured Markdown with metrics (delta arrows), "
     "formatted tables, embedded charts, collapsible sections, and artifact indexes "

@@ -1,6 +1,7 @@
 """Unit tests for the notebookmd plugin system."""
 
 import pytest
+
 from notebookmd import Notebook, NotebookConfig
 from notebookmd.plugins import (
     PluginSpec,
@@ -21,7 +22,6 @@ from notebookmd.plugins_builtin import (
     TextPlugin,
     UtilityPlugin,
 )
-
 
 # ── PluginSpec base class ─────────────────────────────────────────────────────
 

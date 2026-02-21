@@ -23,7 +23,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-from notebookmd import nb, NotebookConfig
+from notebookmd import NotebookConfig, nb
 
 try:
     import pandas as pd
@@ -36,7 +36,6 @@ try:
     import matplotlib
 
     matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
 
     HAS_MPL = True
 except ImportError:
@@ -100,11 +99,13 @@ def main():
 
     n.subheader("Stat & Stats")
     n.stat("Total Orders", 12_450, description="Last 30 days")
-    n.stats([
-        {"label": "Revenue", "value": "$1.2M"},
-        {"label": "Orders", "value": "12,450"},
-        {"label": "AOV", "value": "$96.40"},
-    ])
+    n.stats(
+        [
+            {"label": "Revenue", "value": "$1.2M"},
+            {"label": "Orders", "value": "12,450"},
+            {"label": "AOV", "value": "$96.40"},
+        ]
+    )
 
     n.subheader("Badges")
     n.badge("LIVE", style="success")

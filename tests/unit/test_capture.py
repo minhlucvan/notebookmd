@@ -1,8 +1,8 @@
 """Unit tests for notebookmd.capture module."""
 
 import sys
-import pytest
-from notebookmd.capture import capture_streams, CapturedOutput, render_stdout
+
+from notebookmd.capture import CapturedOutput, capture_streams, render_stdout
 
 
 def test_captured_output_defaults():
@@ -124,6 +124,7 @@ def test_render_stdout_basic():
 def test_render_stderr_basic():
     """Test stderr rendered as fenced code block."""
     from notebookmd.capture import render_stderr
+
     result = render_stderr("Error\nMessage")
 
     assert "**Output (stderr)**" in result
@@ -157,8 +158,10 @@ def test_render_exception_multiline():
     from notebookmd.capture import render_exception
 
     try:
+
         def inner():
             raise RuntimeError("Inner error")
+
         inner()
     except RuntimeError as e:
         result = render_exception(e)

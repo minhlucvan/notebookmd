@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 try:
     import pandas as pd
@@ -57,7 +57,7 @@ def _normalize_table_data(
     if isinstance(data, dict) and data:
         headers = list(columns) if columns else list(data.keys())
         values = [data[h] for h in headers]
-        rows = [list(row) for row in zip(*values)]
+        rows = [list(row) for row in zip(*values, strict=True)]
         return headers, rows
 
     return None

@@ -1,10 +1,11 @@
 """Tests for validating example scripts run correctly."""
 
-import sys
-import pytest
-import subprocess
 import shutil
+import subprocess
+import sys
 from pathlib import Path
+
+import pytest
 
 
 def test_analysis_example_runs(tmp_path, monkeypatch):
@@ -153,8 +154,8 @@ def test_analysis_without_matplotlib(tmp_path, monkeypatch):
     """Test example without matplotlib: figure section skipped."""
     monkeypatch.chdir(tmp_path)
 
-    monkeypatch.setitem(sys.modules, 'matplotlib', None)
-    monkeypatch.setitem(sys.modules, 'matplotlib.pyplot', None)
+    monkeypatch.setitem(sys.modules, "matplotlib", None)
+    monkeypatch.setitem(sys.modules, "matplotlib.pyplot", None)
 
     example_src = Path(__file__).parent.parent.parent / "examples" / "analysis.py"
     if not example_src.exists():

@@ -1,8 +1,7 @@
 """Unit tests for notebookmd.core module."""
 
-import pytest
 from pathlib import Path
-from datetime import datetime
+
 from notebookmd import Notebook, NotebookConfig
 
 

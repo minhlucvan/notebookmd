@@ -9,14 +9,18 @@ can add new methods via entry points or ``Notebook.use()``.
 from __future__ import annotations
 
 import types
+from collections.abc import Generator, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Generator, Sequence
+from typing import TYPE_CHECKING, Any
 
 from .assets import AssetManager
 from .widgets import render_column_separator, render_columns_end, render_tab_end, render_tab_start
+
+if TYPE_CHECKING:
+    from .plugins import PluginSpec
 
 
 @dataclass
@@ -94,9 +98,8 @@ class Notebook:
             if name not in self._plugins:
                 self._apply_plugin(plugin_cls)
 
-    def _apply_plugin(self, plugin_cls: type) -> None:
+    def _apply_plugin(self, plugin_cls: type[PluginSpec]) -> None:
         """Instantiate a plugin and bind its methods to this Notebook."""
-        from .plugins import PluginSpec
 
         plugin = plugin_cls()
         self._plugins[plugin_cls.name] = plugin
@@ -106,7 +109,7 @@ class Notebook:
             bound = types.MethodType(method.__func__, self)
             setattr(self, method_name, bound)
 
-    def use(self, plugin_cls: type) -> None:
+    def use(self, plugin_cls: type[PluginSpec]) -> None:
         """Add a plugin to this Notebook instance.
 
         The plugin's public methods become available as ``n.method_name()``.
@@ -324,7 +327,7 @@ class _TabGroup:
             n.table(df)
     """
 
-    def __init__(self, notebook: Notebook, labels: Sequence[str]):
+    def __init__(self, notebook: Any, labels: Sequence[str]):
         self._notebook = notebook
         self._labels = list(labels)
 
@@ -352,7 +355,7 @@ class _ColumnGroup:
             n.metric("B", "200")
     """
 
-    def __init__(self, notebook: Notebook, n: int):
+    def __init__(self, notebook: Any, n: int):
         self._notebook = notebook
         self._n = n
 

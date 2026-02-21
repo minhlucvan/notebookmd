@@ -1,9 +1,9 @@
 """Unit tests for notebookmd.assets module."""
 
 import sys
+
 import pytest
-from pathlib import Path
-from unittest.mock import patch, MagicMock
+
 from notebookmd.assets import AssetManager
 
 
@@ -145,6 +145,7 @@ def test_save_figure_closes_figure(tmp_path):
     """Test plt.close() called after save."""
     try:
         import matplotlib
+
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
 
@@ -169,10 +170,12 @@ def test_save_figure_closes_figure(tmp_path):
 def test_save_figure_no_matplotlib(tmp_path, monkeypatch):
     """Test ImportError with helpful message when unavailable."""
     import importlib
-    monkeypatch.setitem(sys.modules, 'matplotlib', None)
-    monkeypatch.setitem(sys.modules, 'matplotlib.pyplot', None)
+
+    monkeypatch.setitem(sys.modules, "matplotlib", None)
+    monkeypatch.setitem(sys.modules, "matplotlib.pyplot", None)
 
     import notebookmd.assets
+
     importlib.reload(notebookmd.assets)
     from notebookmd.assets import AssetManager
 
@@ -263,6 +266,7 @@ def test_render_index_multiple(tmp_path, sample_figure):
     """Test all artifacts listed as - [name](path)."""
     try:
         import matplotlib
+
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
 
