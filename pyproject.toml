@@ -57,15 +57,22 @@ all = [
 ]
 dev = [
     "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
     "pandas>=2.1.0",
     "tabulate>=0.9.0",
     "matplotlib>=3.8.0",
+]
+lint = [
+    "ruff>=0.4.0",
+    "mypy>=1.8.0",
 ]
 
 [project.urls]
 Homepage = "https://github.com/minhlucvan/notebookmd"
 Repository = "https://github.com/minhlucvan/notebookmd"
+Documentation = "https://github.com/minhlucvan/notebookmd#readme"
 Issues = "https://github.com/minhlucvan/notebookmd/issues"
+Changelog = "https://github.com/minhlucvan/notebookmd/blob/main/CHANGELOG.md"
 
 [build-system]
 requires = ["hatchling"]
@@ -87,15 +94,51 @@ markers = [
     "plugins: Tests for the plugin system",
 ]
 
-[tool.black]
+[tool.ruff]
+target-version = "py311"
 line-length = 120
-target-version = ["py311"]
 
-[tool.isort]
-profile = "black"
+[tool.ruff.lint]
+select = [
+    "E",     # pycodestyle errors
+    "W",     # pycodestyle warnings
+    "F",     # pyflakes
+    "I",     # isort
+    "N",     # pep8-naming
+    "UP",    # pyupgrade
+    "B",     # flake8-bugbear
+    "SIM",   # flake8-simplify
+    "TCH",   # flake8-type-checking
+    "RUF",   # ruff-specific rules
+]
+ignore = [
+    "E501",   # line length handled by formatter
+    "SIM108", # ternary operator — readability preference
+    "TC003",  # moving stdlib imports to TYPE_CHECKING — too noisy for this project
+]
+allowed-confusables = ["×", "ℹ", "–"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["N806", "E741", "F841", "B007"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["notebookmd"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
 
 [tool.mypy]
 python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
+
+[tool.coverage.run]
+source = ["notebookmd"]
+omit = ["tests/*"]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+fail_under = 80

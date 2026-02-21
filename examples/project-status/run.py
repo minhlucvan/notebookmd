@@ -19,7 +19,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-from notebookmd import nb, NotebookConfig
+from notebookmd import NotebookConfig, nb
 
 try:
     import pandas as pd
@@ -63,7 +63,6 @@ def main():
     total_tasks = len(df)
     completed = len(df[df["status"] == "completed"])
     in_progress = len(df[df["status"] == "in_progress"])
-    pending = len(df[df["status"] == "pending"])
     blocked = len(df[df["status"] == "blocked"])
     completion_pct = completed / total_tasks
 

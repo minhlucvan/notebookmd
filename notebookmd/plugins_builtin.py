@@ -16,11 +16,11 @@ Plugin categories:
 
 from __future__ import annotations
 
+from collections.abc import Generator, Sequence
 from contextlib import contextmanager
-from typing import Any, Generator, Literal, Sequence
+from typing import Any, ClassVar, Literal
 
 from .plugins import PluginSpec
-
 
 # ── Text Elements ─────────────────────────────────────────────────────────────
 
@@ -132,14 +132,30 @@ class DataPlugin(PluginSpec):
 
     name = "data"
     version = "0.3.0"
-    requires = ["pandas"]
 
-    def table(self, df_obj: Any, name: str = "Table", max_rows: int | None = None) -> None:
-        """Emit a DataFrame as a markdown table with truncation."""
+    def table(
+        self,
+        data: Any,
+        name: str = "Table",
+        max_rows: int | None = None,
+        columns: list[str] | None = None,
+    ) -> None:
+        """Emit tabular data as a markdown table with truncation.
+
+        Accepts plain-Python structures (list of dicts, list of lists,
+        column-oriented dict) with zero dependencies, or a pandas DataFrame
+        when pandas is installed.
+
+        Args:
+            data: Tabular data or a pandas DataFrame.
+            name: Section heading for the table.
+            max_rows: Maximum rows to display before truncation.
+            columns: Explicit column headers (overrides auto-detected headers).
+        """
         from .emitters import render_table
 
         n = max_rows if max_rows is not None else self.cfg.max_table_rows
-        self._w(render_table(df_obj, name=name, max_rows=n))
+        self._w(render_table(data, name=name, max_rows=n, columns=columns))
 
     def dataframe(
         self, df_obj: Any, name: str = "", max_rows: int | None = None, use_container_width: bool = False
@@ -218,7 +234,7 @@ class ChartPlugin(PluginSpec):
 
     name = "charts"
     version = "0.3.0"
-    requires = ["matplotlib"]
+    requires: ClassVar[list[str]] = ["matplotlib"]
 
     def line_chart(
         self,
@@ -289,15 +305,11 @@ class ChartPlugin(PluginSpec):
         from .emitters import render_figure
         from .widgets import render_bar_chart
 
-        rel = self._try_render_mpl_chart(
-            "barh" if horizontal else "bar", data, x, y, title, x_label, y_label, filename
-        )
+        rel = self._try_render_mpl_chart("barh" if horizontal else "bar", data, x, y, title, x_label, y_label, filename)
         if rel:
             self._w(render_figure(rel, caption=title, filename=rel))
             return rel
-        self._w(
-            render_bar_chart(data, x=x, y=y, title=title, x_label=x_label, y_label=y_label, horizontal=horizontal)
-        )
+        self._w(render_bar_chart(data, x=x, y=y, title=title, x_label=x_label, y_label=y_label, horizontal=horizontal))
         return None
 
     def figure(self, fig: Any, filename: str, caption: str = "", dpi: int = 160) -> str:

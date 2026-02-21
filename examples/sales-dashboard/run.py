@@ -19,7 +19,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-from notebookmd import nb, NotebookConfig
+from notebookmd import NotebookConfig, nb
 
 try:
     import pandas as pd
@@ -196,9 +196,7 @@ def main():
     n.section("Margin Analysis")
 
     margin_by_region_product = (
-        df.groupby(["region", "product"])
-        .agg(revenue=("revenue", "sum"), profit=("profit", "sum"))
-        .reset_index()
+        df.groupby(["region", "product"]).agg(revenue=("revenue", "sum"), profit=("profit", "sum")).reset_index()
     )
     margin_by_region_product["margin"] = (
         margin_by_region_product["profit"] / margin_by_region_product["revenue"] * 100

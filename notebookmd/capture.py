@@ -5,9 +5,9 @@ from __future__ import annotations
 import io
 import sys
 import traceback
-from contextlib import contextmanager, redirect_stdout, redirect_stderr
-from dataclasses import dataclass, field
-from typing import Generator
+from collections.abc import Generator
+from contextlib import contextmanager, redirect_stderr, redirect_stdout
+from dataclasses import dataclass
 
 
 @dataclass

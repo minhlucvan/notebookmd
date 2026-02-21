@@ -119,9 +119,9 @@ Analyze stock price data with technical indicators, charts, and volume analysis.
 from notebookmd import nb
 import pandas as pd
 
-n = nb("dist/stock_analysis.md", title="VCB Stock Analysis")
+n = nb("dist/stock_analysis.md", title="AAPL Stock Analysis")
 
-df = pd.read_csv("vcb_prices.csv", parse_dates=["date"])
+df = pd.read_csv("aapl_prices.csv", parse_dates=["date"])
 
 # ── Price Overview ──
 n.section("Price Overview")
@@ -143,7 +143,7 @@ n.badge("BULLISH", style="success")
 
 # ── Charts ──
 n.section("Price Chart")
-n.line_chart(df, x="date", y="close", title="VCB Daily Close")
+n.line_chart(df, x="date", y="close", title="AAPL Daily Close")
 
 n.section("Volume Analysis")
 n.bar_chart(df.tail(20), x="date", y="volume", title="Recent Volume")
