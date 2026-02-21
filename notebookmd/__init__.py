@@ -50,11 +50,20 @@ Plugin system::
     n.greet("world")
 """
 
+from .cache import cache_data, cache_resource
 from .core import Notebook, NotebookConfig
 from .plugins import PluginSpec, register_plugin
 
 __version__ = "0.3.0"
-__all__ = ["Notebook", "NotebookConfig", "PluginSpec", "nb", "register_plugin"]
+__all__ = [
+    "Notebook",
+    "NotebookConfig",
+    "PluginSpec",
+    "cache_data",
+    "cache_resource",
+    "nb",
+    "register_plugin",
+]
 
 # Load built-in plugins and discover community plugins via entry points.
 # This must happen after imports but before any Notebook is created.

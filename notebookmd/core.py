@@ -9,7 +9,7 @@ can add new methods via entry points or ``Notebook.use()``.
 from __future__ import annotations
 
 import types
-from collections.abc import Generator, Sequence
+from collections.abc import Callable, Generator, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
@@ -86,6 +86,7 @@ class Notebook:
         self._counter = 0  # General-purpose counter for unique filenames
         self._chunks: list[str] = []
         self._plugins: dict[str, Any] = {}  # name -> PluginSpec instance
+        self._on_write: Callable[[str], None] | None = None  # Live output callback
 
         # Load all globally registered plugins
         self._load_default_plugins()
@@ -148,6 +149,8 @@ class Notebook:
     def _w(self, s: str) -> None:
         """Append a chunk of markdown to the internal buffer."""
         self._chunks.append(s)
+        if self._on_write is not None:
+            self._on_write(s)
 
     def _ensure_started(self) -> None:
         """Lazily initialize the report header on first use."""
