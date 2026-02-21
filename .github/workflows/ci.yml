@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Python ${{ matrix.python-version }} (${{ matrix.deps }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+        deps: [core, all]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install core package
+        if: matrix.deps == 'core'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Install with all extras
+        if: matrix.deps == 'all'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[all,dev]"
+
+      - name: Run tests
+        run: pytest tests/ -v --tb=short
+
+      - name: Verify zero-dependency core import
+        if: matrix.deps == 'core'
+        run: |
+          python -c "
+          from notebookmd import nb, Notebook, NotebookConfig
+          n = nb('/tmp/test.md', title='CI Test')
+          n.header('Hello')
+          n.metric('Status', 'OK')
+          n.save()
+          print('Core import OK — zero-dependency contract holds.')
+          "
+
+  test-minimal:
+    name: Minimal install (no extras)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install package only
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Verify import and basic usage
+        run: |
+          python -c "
+          from notebookmd import nb
+          n = nb('/tmp/test.md', title='Minimal Test')
+          n.header('Works')
+          n.write('Zero dependencies confirmed.')
+          n.save()
+          print('Minimal install OK')
+          "

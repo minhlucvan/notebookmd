@@ -1,8 +1,10 @@
 """Integration tests for asset management end-to-end."""
 
-import pytest
 from pathlib import Path
-from notebookmd import Notebook, NotebookConfig
+
+import pytest
+
+from notebookmd import Notebook
 
 
 @pytest.mark.integration
@@ -43,6 +45,7 @@ def test_multiple_figures_tracked(tmp_path):
     """Test all figures in artifact index."""
     try:
         import matplotlib
+
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
 
@@ -130,6 +133,7 @@ def test_figure_filename_collision(tmp_path):
     """Test multiple figures with same name handled correctly."""
     try:
         import matplotlib
+
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
 

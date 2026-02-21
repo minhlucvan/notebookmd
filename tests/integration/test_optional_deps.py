@@ -1,9 +1,9 @@
 """Integration tests for graceful degradation when pandas/matplotlib missing."""
 
-import sys
-import pytest
 import importlib
-from unittest.mock import patch
+import sys
+
+import pytest
 
 
 @pytest.fixture(autouse=True)
@@ -11,11 +11,12 @@ def _reload_modules_after_test():
     """Reload affected modules after each test to undo any mock side effects."""
     yield
     # Restore modules that may have been reloaded with mocked dependencies
-    import notebookmd.emitters
-    import notebookmd.widgets
+    import notebookmd
     import notebookmd.assets
     import notebookmd.core
-    import notebookmd
+    import notebookmd.emitters
+    import notebookmd.widgets
+
     importlib.reload(notebookmd.emitters)
     importlib.reload(notebookmd.widgets)
     importlib.reload(notebookmd.assets)
@@ -25,27 +26,33 @@ def _reload_modules_after_test():
 
 @pytest.mark.integration
 def test_table_without_pandas(tmp_path, monkeypatch):
-    """Test render_table() returns fallback message."""
+    """Test render_table() works with plain-Python data when pandas is unavailable."""
     # Simulate pandas not installed
-    monkeypatch.setitem(sys.modules, 'pandas', None)
+    monkeypatch.setitem(sys.modules, "pandas", None)
 
     # Reload module to pick up the mock
     import notebookmd.emitters
+
     importlib.reload(notebookmd.emitters)
     from notebookmd.emitters import render_table
 
-    result = render_table({}, name="Test Table")
+    # Plain-Python list-of-dicts should render without pandas
+    data = [{"name": "Alice", "age": 30}, {"name": "Bob", "age": 25}]
+    result = render_table(data, name="Test Table")
 
-    assert "pandas" in result.lower()
-    assert "install" in result.lower() or "not available" in result.lower()
+    assert "#### Test Table" in result
+    assert "Alice" in result
+    assert "Bob" in result
+    assert "|" in result
 
 
 @pytest.mark.integration
 def test_summary_without_pandas(tmp_path, monkeypatch):
     """Test render_summary() returns fallback message."""
-    monkeypatch.setitem(sys.modules, 'pandas', None)
+    monkeypatch.setitem(sys.modules, "pandas", None)
 
     import notebookmd.emitters
+
     importlib.reload(notebookmd.emitters)
     from notebookmd.emitters import render_summary
 
@@ -57,10 +64,11 @@ def test_summary_without_pandas(tmp_path, monkeypatch):
 @pytest.mark.integration
 def test_figure_without_matplotlib(tmp_path, monkeypatch):
     """Test save_figure() raises ImportError with helpful message."""
-    monkeypatch.setitem(sys.modules, 'matplotlib', None)
-    monkeypatch.setitem(sys.modules, 'matplotlib.pyplot', None)
+    monkeypatch.setitem(sys.modules, "matplotlib", None)
+    monkeypatch.setitem(sys.modules, "matplotlib.pyplot", None)
 
     import notebookmd.assets
+
     importlib.reload(notebookmd.assets)
     from notebookmd.assets import AssetManager
 
@@ -74,9 +82,10 @@ def test_figure_without_matplotlib(tmp_path, monkeypatch):
 @pytest.mark.integration
 def test_csv_without_pandas(tmp_path, monkeypatch):
     """Test save_csv() fails gracefully (no .to_csv() method)."""
-    monkeypatch.setitem(sys.modules, 'pandas', None)
+    monkeypatch.setitem(sys.modules, "pandas", None)
 
     import notebookmd.assets
+
     importlib.reload(notebookmd.assets)
     from notebookmd.assets import AssetManager
 
@@ -91,15 +100,16 @@ def test_csv_without_pandas(tmp_path, monkeypatch):
 def test_notebook_without_any_deps(tmp_path, monkeypatch):
     """Test full notebook with md/note/code only works."""
     # Simulate both pandas and matplotlib unavailable
-    monkeypatch.setitem(sys.modules, 'pandas', None)
-    monkeypatch.setitem(sys.modules, 'matplotlib', None)
-    monkeypatch.setitem(sys.modules, 'matplotlib.pyplot', None)
+    monkeypatch.setitem(sys.modules, "pandas", None)
+    monkeypatch.setitem(sys.modules, "matplotlib", None)
+    monkeypatch.setitem(sys.modules, "matplotlib.pyplot", None)
 
     # Reload to ensure imports use mocked modules
     import notebookmd
     import notebookmd.core
     import notebookmd.emitters
     import notebookmd.widgets
+
     importlib.reload(notebookmd.emitters)
     importlib.reload(notebookmd.widgets)
     importlib.reload(notebookmd.core)

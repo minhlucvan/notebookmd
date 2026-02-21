@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 try:
     import pandas as pd
@@ -25,17 +25,75 @@ def render_code(source: str, lang: str = "python") -> str:
     return f"```{lang}\n{source.rstrip()}\n```\n\n"
 
 
+def _normalize_table_data(
+    data: Any,
+    columns: list[str] | None = None,
+) -> tuple[list[str], list[list[Any]]] | None:
+    """Normalize plain-Python data into (headers, rows).
+
+    Supported formats:
+    - list[dict]: each dict is a row, keys are column names
+    - list[list|tuple]: each inner sequence is a row
+    - dict[str, Sequence]: column-oriented, keys are headers
+    - tuple[tuple|list, ...]: same as list of lists
+
+    Returns:
+        Tuple of (headers, rows) or None if format is not recognised.
+    """
+    # list/tuple of dicts → row-oriented
+    if isinstance(data, (list, tuple)) and data and isinstance(data[0], dict):
+        headers = columns or list(data[0].keys())
+        rows = [[row.get(h, "") for h in headers] for row in data]
+        return headers, rows
+
+    # list/tuple of lists/tuples → row-oriented
+    if isinstance(data, (list, tuple)) and data and isinstance(data[0], (list, tuple)):
+        ncols = max(len(r) for r in data)
+        headers = list(columns) if columns else [f"col_{i}" for i in range(ncols)]
+        rows = [list(row) for row in data]
+        return headers, rows
+
+    # dict of sequences → column-oriented
+    if isinstance(data, dict) and data:
+        headers = list(columns) if columns else list(data.keys())
+        values = [data[h] for h in headers]
+        rows = [list(row) for row in zip(*values, strict=True)]
+        return headers, rows
+
+    return None
+
+
+def _render_md_table(headers: list[str], rows: list[list[Any]]) -> str:
+    """Render a list of headers and rows as a markdown pipe-table."""
+    lines: list[str] = []
+    lines.append("| " + " | ".join(str(h) for h in headers) + " |")
+    lines.append("| " + " | ".join("---" for _ in headers) + " |")
+    for row in rows:
+        lines.append("| " + " | ".join(str(v) for v in row) + " |")
+    return "\n".join(lines) + "\n"
+
+
 def render_table(
-    df_obj: Any,
+    data: Any,
     name: str = "Table",
     max_rows: int = 30,
+    columns: list[str] | None = None,
 ) -> str:
-    """Render a pandas DataFrame as a markdown table with truncation.
+    """Render tabular data as a markdown table with truncation.
+
+    Accepts plain-Python structures (no dependencies) **or** a pandas
+    DataFrame when pandas is installed.
+
+    Supported plain-Python formats:
+    - ``list[dict]`` — each dict is a row, keys become column headers
+    - ``list[list]`` / ``list[tuple]`` — each inner sequence is a row
+    - ``dict[str, Sequence]`` — column-oriented data, keys are headers
 
     Args:
-        df_obj: A pandas DataFrame (or anything with .to_markdown()).
+        data: Tabular data in any of the formats above, or a pandas DataFrame.
         name: Section heading for the table.
         max_rows: Maximum rows to display before truncation.
+        columns: Explicit column headers (overrides auto-detected headers).
 
     Returns:
         Markdown string with heading, table, and shape info.
@@ -43,29 +101,45 @@ def render_table(
     chunks: list[str] = []
     chunks.append(f"#### {name}\n\n")
 
-    if pd is None:
-        chunks.append("> **Note:** pandas not installed; cannot render table.\n\n")
+    # ── pandas DataFrame path ────────────────────────────────────────────
+    if pd is not None and hasattr(data, "to_markdown") and hasattr(data, "columns"):
+        nrows = len(data)
+        ncols = len(data.columns)
+        view = data.head(max_rows).copy()
+
+        if nrows > max_rows:
+            ellipsis_row = {col: "…" for col in view.columns}
+            ellipsis_df = type(data)([ellipsis_row])
+            view = type(data)(pd.concat([view, ellipsis_df], ignore_index=True))
+
+        try:
+            chunks.append(view.to_markdown(index=False) + "\n\n")
+        except TypeError:
+            chunks.append(view.to_markdown() + "\n\n")
+
+        chunks.append(f"_shape: {nrows:,} rows × {ncols:,} cols_\n\n")
         return "".join(chunks)
 
-    if not hasattr(df_obj, "to_markdown"):
-        chunks.append("> **Note:** Object does not support `.to_markdown()`.\n\n")
+    # ── plain-Python data path ───────────────────────────────────────────
+    normalised = _normalize_table_data(data, columns=columns)
+    if normalised is not None:
+        headers, rows = normalised
+        nrows = len(rows)
+        ncols = len(headers)
+
+        view = rows[:max_rows]
+        if nrows > max_rows:
+            view.append(["…"] * ncols)
+
+        chunks.append(_render_md_table(headers, view) + "\n")
+        chunks.append(f"_shape: {nrows:,} rows × {ncols:,} cols_\n\n")
         return "".join(chunks)
 
-    nrows = len(df_obj)
-    ncols = len(df_obj.columns)
-    view = df_obj.head(max_rows).copy()
-
-    if nrows > max_rows:
-        ellipsis_row = {col: "…" for col in view.columns}
-        ellipsis_df = type(df_obj)([ellipsis_row])
-        view = type(df_obj)(pd.concat([view, ellipsis_df], ignore_index=True))
-
-    try:
-        chunks.append(view.to_markdown(index=False) + "\n\n")
-    except TypeError:
-        chunks.append(view.to_markdown() + "\n\n")
-
-    chunks.append(f"_shape: {nrows:,} rows × {ncols:,} cols_\n\n")
+    # ── fallback ─────────────────────────────────────────────────────────
+    chunks.append(
+        "> **Note:** Unsupported data type. Pass a list of dicts, list of lists,"
+        " a column-oriented dict, or install pandas for DataFrame support.\n\n"
+    )
     return "".join(chunks)
 
 

@@ -31,7 +31,13 @@ from __future__ import annotations
 
 import importlib.metadata
 import logging
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from .assets import AssetManager
+    from .core import NotebookConfig
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +68,29 @@ class PluginSpec:
     name: ClassVar[str] = ""
     version: ClassVar[str] = "0.1.0"
     requires: ClassVar[list[str]] = []
+
+    # -- Type stubs for the Notebook interface --
+    # At runtime, plugin methods are bound to Notebook instances via
+    # types.MethodType, so ``self`` is actually a Notebook.  These stubs
+    # let mypy see the Notebook attributes that plugins use.
+    if TYPE_CHECKING:
+        cfg: NotebookConfig
+        _asset_mgr: AssetManager
+
+        def _w(self, s: str) -> None: ...
+        def _ensure_started(self) -> None: ...
+        def _next_id(self) -> int: ...
+        def _try_render_mpl_chart(
+            self,
+            chart_type: str,
+            data: Any,
+            x: str | None,
+            y: str | Sequence[str] | None,
+            title: str,
+            x_label: str,
+            y_label: str,
+            filename: str | None,
+        ) -> str | None: ...
 
     def get_methods(self) -> dict[str, Any]:
         """Return a mapping of method_name -> callable for this plugin.
@@ -144,7 +173,7 @@ def discover_entry_point_plugins() -> list[type[PluginSpec]]:
         if hasattr(eps, "select"):
             plugin_eps = eps.select(group="notebookmd.plugins")
         else:
-            plugin_eps = eps.get("notebookmd.plugins", [])  # type: ignore[union-attr]
+            plugin_eps = eps.get("notebookmd.plugins", [])  # type: ignore[union-attr, arg-type]
 
         for ep in plugin_eps:
             try:

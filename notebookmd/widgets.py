@@ -9,7 +9,8 @@ st.success, st.error, st.warning, st.info, st.image, and more.
 from __future__ import annotations
 
 import json as _json
-from typing import Any, Literal, Sequence
+from collections.abc import Sequence
+from typing import Any, Literal
 
 try:
     import pandas as pd
@@ -142,23 +143,25 @@ def render_json(data: Any, expanded: bool = True) -> str:
 
 
 def render_dataframe(
-    df_obj: Any,
+    data: Any,
     name: str = "",
     max_rows: int = 30,
     use_container_width: bool = False,
+    columns: list[str] | None = None,
 ) -> str:
-    """Render a DataFrame with st.dataframe-compatible API.
+    """Render tabular data with st.dataframe-compatible API.
 
     Args:
-        df_obj: A pandas DataFrame.
+        data: Tabular data (list of dicts, list of lists, dict, or pandas DataFrame).
         name: Optional heading.
         max_rows: Max rows to render.
         use_container_width: Ignored for markdown, kept for API compatibility.
+        columns: Explicit column headers (overrides auto-detected headers).
     """
     # Delegate to the existing table renderer logic
     from .emitters import render_table
 
-    return render_table(df_obj, name=name or "Data", max_rows=max_rows)
+    return render_table(data, name=name or "Data", max_rows=max_rows, columns=columns)
 
 
 # ── Chart Widgets ─────────────────────────────────────────────────────────────
@@ -305,7 +308,7 @@ def render_title(text: str, anchor: str | None = None) -> str:
         anchor: Optional HTML anchor ID.
     """
     if anchor:
-        return f'# {text} {{#{anchor}}}\n\n'
+        return f"# {text} {{#{anchor}}}\n\n"
     return f"# {text}\n\n"
 
 
@@ -424,9 +427,7 @@ def render_exception(exc: Exception) -> str:
     Args:
         exc: The exception to display.
     """
-    return (
-        f"> ❌ **{type(exc).__name__}:** {str(exc)}\n\n"
-    )
+    return f"> ❌ **{type(exc).__name__}:** {exc!s}\n\n"
 
 
 def render_progress(value: float, text: str = "") -> str:
@@ -609,7 +610,7 @@ def render_code_block(body: str, language: str = "python", line_numbers: bool = 
     if line_numbers:
         lines = body.rstrip().split("\n")
         width = len(str(len(lines)))
-        numbered = "\n".join(f"{i+1:>{width}} | {line}" for i, line in enumerate(lines))
+        numbered = "\n".join(f"{i + 1:>{width}} | {line}" for i, line in enumerate(lines))
         return f"```{language}\n{numbered}\n```\n\n"
     return f"```{language}\n{body.rstrip()}\n```\n\n"
 

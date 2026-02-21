@@ -20,7 +20,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-from notebookmd import nb, NotebookConfig
+from notebookmd import NotebookConfig, nb
 
 try:
     import pandas as pd
@@ -102,11 +102,13 @@ def main():
     for dept in ["Engineering", "Product", "Design", "Sales"]:
         with tabs.tab(dept):
             dept_df = df[df["department"] == dept]
-            n.stats([
-                {"label": "Headcount", "value": str(len(dept_df))},
-                {"label": "Avg Salary", "value": f"${dept_df['salary'].mean():,.0f}"},
-                {"label": "Avg Score", "value": f"{dept_df['performance_score'].mean():.1f}"},
-            ])
+            n.stats(
+                [
+                    {"label": "Headcount", "value": str(len(dept_df))},
+                    {"label": "Avg Salary", "value": f"${dept_df['salary'].mean():,.0f}"},
+                    {"label": "Avg Score", "value": f"{dept_df['performance_score'].mean():.1f}"},
+                ]
+            )
             n.table(
                 dept_df[["name", "title", "salary", "performance_score", "city"]],
                 name=f"{dept} Team",
@@ -161,7 +163,7 @@ def main():
         salary_data = [df[df["department"] == d]["salary"].values for d in departments]
         bp = ax.boxplot(salary_data, labels=departments, patch_artist=True)
         colors = ["#2563eb", "#7c3aed", "#059669", "#dc2626", "#f59e0b", "#6366f1", "#0891b2"]
-        for patch, color in zip(bp["boxes"], colors):
+        for patch, color in zip(bp["boxes"], colors, strict=False):
             patch.set_facecolor(color)
             patch.set_alpha(0.6)
         ax.set_ylabel("Salary ($)")

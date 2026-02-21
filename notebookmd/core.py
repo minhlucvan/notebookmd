@@ -9,14 +9,18 @@ can add new methods via entry points or ``Notebook.use()``.
 from __future__ import annotations
 
 import types
+from collections.abc import Callable, Generator, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Generator, Sequence
+from typing import TYPE_CHECKING, Any
 
 from .assets import AssetManager
 from .widgets import render_column_separator, render_columns_end, render_tab_end, render_tab_start
+
+if TYPE_CHECKING:
+    from .plugins import PluginSpec
 
 
 @dataclass
@@ -82,6 +86,7 @@ class Notebook:
         self._counter = 0  # General-purpose counter for unique filenames
         self._chunks: list[str] = []
         self._plugins: dict[str, Any] = {}  # name -> PluginSpec instance
+        self._on_write: Callable[[str], None] | None = None  # Live output callback
 
         # Load all globally registered plugins
         self._load_default_plugins()
@@ -94,9 +99,8 @@ class Notebook:
             if name not in self._plugins:
                 self._apply_plugin(plugin_cls)
 
-    def _apply_plugin(self, plugin_cls: type) -> None:
+    def _apply_plugin(self, plugin_cls: type[PluginSpec]) -> None:
         """Instantiate a plugin and bind its methods to this Notebook."""
-        from .plugins import PluginSpec
 
         plugin = plugin_cls()
         self._plugins[plugin_cls.name] = plugin
@@ -106,7 +110,7 @@ class Notebook:
             bound = types.MethodType(method.__func__, self)
             setattr(self, method_name, bound)
 
-    def use(self, plugin_cls: type) -> None:
+    def use(self, plugin_cls: type[PluginSpec]) -> None:
         """Add a plugin to this Notebook instance.
 
         The plugin's public methods become available as ``n.method_name()``.
@@ -145,6 +149,8 @@ class Notebook:
     def _w(self, s: str) -> None:
         """Append a chunk of markdown to the internal buffer."""
         self._chunks.append(s)
+        if self._on_write is not None:
+            self._on_write(s)
 
     def _ensure_started(self) -> None:
         """Lazily initialize the report header on first use."""
@@ -172,7 +178,7 @@ class Notebook:
         Works both as a plain call and as a context manager::
 
             # Plain call — just emits the heading, content follows below
-            n.section("Key Metrics", "Fundamental indicators for VCB")
+            n.section("Key Metrics", "Fundamental indicators for AAPL")
             n.metric("ROE", "22.5%")
             n.kv({"P/E": "15.2x", "P/B": "2.3x"})
 
@@ -324,7 +330,7 @@ class _TabGroup:
             n.table(df)
     """
 
-    def __init__(self, notebook: Notebook, labels: Sequence[str]):
+    def __init__(self, notebook: Any, labels: Sequence[str]):
         self._notebook = notebook
         self._labels = list(labels)
 
@@ -352,7 +358,7 @@ class _ColumnGroup:
             n.metric("B", "200")
     """
 
-    def __init__(self, notebook: Notebook, n: int):
+    def __init__(self, notebook: Any, n: int):
         self._notebook = notebook
         self._n = n
 
