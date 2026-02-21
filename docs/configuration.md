@@ -134,11 +134,15 @@ notebookmd is designed with a zero-dependency core. Features that need external 
 
 ### Without pandas
 
-Table-related methods (`table()`, `dataframe()`, `summary()`, `export_csv()`) require pandas. Without it, they emit a message indicating pandas is needed:
+`table()` and `dataframe()` work **without pandas** using plain Python data (list of dicts, list of lists, column-oriented dicts). pandas is only needed for DataFrame-specific features like `summary()` and `export_csv()`.
 
 ```python
-n.table(data, name="Results")
-# Without pandas: "> ⚠️ pandas is required for table rendering."
+# Works without pandas
+n.table([{"name": "Alice", "score": 95}], name="Results")
+
+# Requires pandas
+n.summary(df)
+n.export_csv(df, "data.csv")
 ```
 
 ### Without matplotlib
@@ -163,9 +167,20 @@ The `figure()` method requires matplotlib since it directly takes a matplotlib F
 
 `altair_chart()` requires `altair`. For static image export, `vl-convert-python` is needed (falls back to HTML, then JSON spec).
 
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `NOTEBOOKMD_CACHE_DIR` | Override the default cache directory (`.notebookmd_cache`) |
+
 ## Environment Patterns
 
 ### CI/CD Pipeline
+
+```bash
+# Run a report script in CI
+notebookmd run reports/daily_metrics.py -o artifacts/daily.md --no-cache
+```
 
 ```python
 from notebookmd import nb, NotebookConfig
@@ -180,6 +195,12 @@ n = nb(
 
 ### Templated Reports
 
+```bash
+# Generate reports for different parameters
+notebookmd run regional_report.py --var REGION=US -o output/us.md
+notebookmd run regional_report.py --var REGION=EU -o output/eu.md
+```
+
 ```python
 from notebookmd import nb
 from datetime import date
@@ -189,6 +210,13 @@ n = nb(
     f"output/daily_{today}.md",
     title=f"Daily Report - {today}",
 )
+```
+
+### Development with Live Reload
+
+```bash
+# Watch for changes and stream output
+notebookmd run my_report.py --watch --live
 ```
 
 ### In-Memory Only

@@ -4,6 +4,8 @@ This page documents the core classes and functions that make up the notebookmd p
 
 For widget methods (`metric()`, `table()`, `line_chart()`, etc.), see [Widgets Reference](widgets.md).
 For the plugin system (`PluginSpec`, `register_plugin()`), see [Plugin System](plugins.md).
+For caching decorators (`@cache_data`, `@cache_resource`), see [Caching](caching.md).
+For the CLI and script runner, see [CLI Reference](cli.md).
 
 ## `nb()` Factory Function
 
@@ -363,6 +365,102 @@ print(out.has_error) # False
 
 ---
 
+## `Runner` Class
+
+```python
+from notebookmd.runner import Runner, RunConfig, RunResult, RunStatus
+```
+
+Executes notebookmd scripts with runtime enhancements (live output, variable injection, caching). This is the engine behind `notebookmd run`.
+
+### `RunConfig`
+
+```python
+@dataclass
+class RunConfig:
+    live: bool = False
+    output: str | None = None
+    variables: dict[str, str] = field(default_factory=dict)
+    cache_dir: str | None = None
+    log_level: str = "INFO"
+    no_cache: bool = False
+    stream: TextIO | None = None
+```
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `live` | `bool` | `False` | Stream Markdown to stderr as it's generated |
+| `output` | `str \| None` | `None` | Override the output file path |
+| `variables` | `dict[str, str]` | `{}` | Variables injected into the script's global namespace |
+| `cache_dir` | `str \| None` | `None` | Custom cache directory |
+| `log_level` | `str` | `"INFO"` | Logging verbosity |
+| `no_cache` | `bool` | `False` | Disable caching |
+| `stream` | `TextIO \| None` | `None` | Destination for live output (default: stderr) |
+
+### `RunResult`
+
+```python
+@dataclass
+class RunResult:
+    status: RunStatus
+    script: str
+    output_path: str | None = None
+    duration_seconds: float = 0.0
+    error: str | None = None
+    traceback: str | None = None
+    artifacts: list[str] = field(default_factory=list)
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `status` | `RunStatus` | `SUCCESS`, `ERROR`, or `INTERRUPTED` |
+| `script` | `str` | Path to the script that was executed |
+| `output_path` | `str \| None` | Path to the generated Markdown file |
+| `duration_seconds` | `float` | Total execution time |
+| `error` | `str \| None` | Error message (if failed) |
+| `traceback` | `str \| None` | Full traceback (if failed) |
+| `artifacts` | `list[str]` | Paths to generated artifacts |
+| `ok` | `bool` | Property: `True` if `status == SUCCESS` |
+
+#### `summary() -> str`
+
+Returns a human-readable summary of the run result.
+
+### `RunStatus` Enum
+
+```python
+class RunStatus(Enum):
+    SUCCESS = "success"
+    ERROR = "error"
+    INTERRUPTED = "interrupted"
+```
+
+### `Runner` Methods
+
+#### `execute(script_path: str) -> RunResult`
+
+Execute a Python script and return the result.
+
+```python
+runner = Runner(RunConfig(live=True))
+result = runner.execute("analysis.py")
+```
+
+### `LiveWriter`
+
+Hooks into `Notebook._w()` to stream Markdown chunks in real time.
+
+```python
+from notebookmd.runner import LiveWriter
+
+writer = LiveWriter(stream=sys.stderr)
+writer.on_write("## Section\n\n")
+print(writer.total_bytes)   # Bytes written
+print(writer.chunk_count)   # Chunks written
+```
+
+---
+
 ## Module-Level Constants
 
 ```python
@@ -374,10 +472,14 @@ The current version of the notebookmd package.
 ## Public Exports
 
 ```python
-__all__ = ["nb", "Notebook", "NotebookConfig", "PluginSpec", "register_plugin"]
+__all__ = [
+    "Notebook", "NotebookConfig", "PluginSpec",
+    "cache_data", "cache_resource",
+    "nb", "register_plugin",
+]
 ```
 
-These are the five symbols exported from `notebookmd`:
+These are the seven symbols exported from `notebookmd`:
 
 | Export | Type | Description |
 |--------|------|-------------|
@@ -386,3 +488,5 @@ These are the five symbols exported from `notebookmd`:
 | `NotebookConfig` | dataclass | Rendering configuration |
 | `PluginSpec` | class | Base class for plugins |
 | `register_plugin` | function | Register a plugin globally |
+| `cache_data` | decorator | Cache function return values (disk + memory) |
+| `cache_resource` | decorator | Cache singleton resources (memory only) |

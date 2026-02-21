@@ -22,9 +22,10 @@ pip install "notebookmd[all]"
 
 | Extra | Packages Added | Enables |
 |-------|---------------|---------|
-| _(core)_ | None | Text, metrics, status, layout widgets |
-| `pandas` | pandas | `table()`, `dataframe()`, `summary()`, `export_csv()` |
+| _(core)_ | None | Text, metrics, status, layout widgets, plain-Python tables |
+| `pandas` | pandas | DataFrame tables, `summary()`, `export_csv()` |
 | `plotting` | matplotlib | `line_chart()`, `area_chart()`, `bar_chart()`, `figure()` |
+| `watch` | watchdog | Efficient file watching with `notebookmd run --watch` |
 | `all` | pandas + matplotlib | Everything |
 
 Plotly and Altair are supported but not bundled -- install them separately if needed:
@@ -52,6 +53,16 @@ n.save()
 ```
 
 Running this script creates `output/report.md` with a formatted Markdown report.
+
+You can also run scripts via the CLI:
+
+```bash
+notebookmd run my_report.py
+notebookmd run my_report.py --live          # Stream output in real time
+notebookmd run my_report.py --watch         # Re-run on file changes
+```
+
+See [CLI Reference](cli.md) for details.
 
 ## Core Concepts
 
@@ -177,7 +188,9 @@ output/
 
 ## Next Steps
 
+- [CLI Reference](cli.md) -- run scripts with live output and file watching
 - [Widgets Reference](widgets.md) -- see all 48 available methods
+- [Caching](caching.md) -- speed up reports with `@cache_data` and `@cache_resource`
 - [Configuration](configuration.md) -- customize table limits, float formatting, and asset paths
 - [Plugin System](plugins.md) -- extend notebookmd with custom widgets
 - [Examples](examples.md) -- full end-to-end report examples

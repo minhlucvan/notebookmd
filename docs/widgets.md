@@ -141,32 +141,57 @@ n.divider()
 
 ## Data Widgets
 
-Methods for displaying tables, metrics, and structured data. Requires `pandas` for table/DataFrame methods.
+Methods for displaying tables, metrics, and structured data. Tables work with **plain Python data** (no pandas required) and also support pandas DataFrames.
 
 ### `n.table(df_obj, name="Table", max_rows=None)`
 
-Display a DataFrame as a markdown table with automatic truncation.
+Display data as a markdown table with automatic truncation.
+
+Accepts pandas DataFrames **and** plain Python data:
+- `list[dict]` -- each dict is a row, keys are column names
+- `list[list]` or `list[tuple]` -- each inner sequence is a row
+- `dict[str, Sequence]` -- column-oriented, keys are headers
+- pandas DataFrame
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `df_obj` | DataFrame | _(required)_ | A pandas DataFrame |
+| `df_obj` | DataFrame / list / dict | _(required)_ | Data to display |
 | `name` | `str` | `"Table"` | Table heading |
 | `max_rows` | `int \| None` | `None` | Max rows to show (defaults to `cfg.max_table_rows`) |
 
 ```python
+# With pandas
 n.table(df, name="Revenue by Region")
-n.table(df, name="Top 10", max_rows=10)
+
+# With plain Python -- no pandas needed
+n.table([
+    {"name": "Alice", "score": 95},
+    {"name": "Bob", "score": 87},
+    {"name": "Carol", "score": 92},
+], name="Student Scores")
+
+# List of lists
+n.table([
+    ["Alice", 95],
+    ["Bob", 87],
+], name="Scores")
+
+# Column-oriented dict
+n.table({
+    "name": ["Alice", "Bob"],
+    "score": [95, 87],
+}, name="Scores")
 ```
 
-When the DataFrame has more rows than `max_rows`, an ellipsis row is added and the total shape is noted.
+When data has more rows than `max_rows`, an ellipsis row is added and the total shape is noted.
 
 ### `n.dataframe(df_obj, name="", max_rows=None, use_container_width=False)`
 
-Display a DataFrame. Functionally identical to `table()` with slightly different defaults, provided for Streamlit API compatibility.
+Display data as a table. Functionally identical to `table()` with slightly different defaults, provided for Streamlit API compatibility. Also supports plain Python data.
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `df_obj` | DataFrame | _(required)_ | A pandas DataFrame |
+| `df_obj` | DataFrame / list / dict | _(required)_ | Data to display |
 | `name` | `str` | `""` | Optional heading |
 | `max_rows` | `int \| None` | `None` | Max rows to show |
 | `use_container_width` | `bool` | `False` | Ignored (Streamlit API compat) |
