@@ -54,7 +54,7 @@ from .cache import cache_data, cache_resource
 from .core import Notebook, NotebookConfig
 from .plugins import PluginSpec, register_plugin
 
-__version__ = "0.3.0"
+__version__ = "1.0.0"
 __all__ = [
     "Notebook",
     "NotebookConfig",

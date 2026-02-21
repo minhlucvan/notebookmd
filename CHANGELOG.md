@@ -7,12 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-02-21
+
 ### Added
 - CI/CD pipeline with GitHub Actions (test matrix, code quality, release automation)
 - Contributing guide, Code of Conduct, and Security policy
 - Issue and PR templates
 - Makefile for common development tasks
 - Ruff configuration for linting and formatting
+- CLI layer with `notebookmd` command for running scripts
+- Caching system with `@cache_data` and `@cache_resource` decorators
+- Live output mode for real-time report streaming
+- Script runner with variable injection support
+- Comprehensive documentation in `docs/` directory
+- `/publish` slash command for PyPI releases
+- Modular plugin file structure (split from monolithic `plugins_builtin.py`)
+
+### Changed
+- **Breaking**: First stable 1.0.0 release with committed API stability
+- Improved plugin organization with separate files per plugin type
+- Enhanced README with CLI usage, plugin examples, and demo output
 
 ## [0.3.0] - 2026-02-21
 
@@ -44,7 +58,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Zero-dependency core with optional pandas/matplotlib support
 - Asset manager for figures and CSV export
 
-[Unreleased]: https://github.com/minhlucvan/notebookmd/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/minhlucvan/notebookmd/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/minhlucvan/notebookmd/compare/v0.3.0...v1.0.0
 [0.3.0]: https://github.com/minhlucvan/notebookmd/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/minhlucvan/notebookmd/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/minhlucvan/notebookmd/releases/tag/v0.1.0

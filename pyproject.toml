@@ -1,6 +1,6 @@
 [project]
 name = "notebookmd"
-version = "0.3.0"
+version = "1.0.0"
 description = "Streamlit-like API for AI agents to generate structured Markdown reports — enabling expert-level data analytics through programmatic notebook-style output"
 license = "MIT"
 readme = "README.md"
@@ -114,7 +114,8 @@ select = [
 ignore = [
     "E501",   # line length handled by formatter
     "SIM108", # ternary operator — readability preference
-    "TC003",  # moving stdlib imports to TYPE_CHECKING — too noisy for this project
+    "TCH003", # moving stdlib imports to TYPE_CHECKING — too noisy for this project
+    "UP038",  # isinstance with union types — readability preference for tuple syntax
 ]
 allowed-confusables = ["×", "ℹ", "–"]
 
