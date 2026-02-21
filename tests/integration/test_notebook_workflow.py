@@ -1,7 +1,7 @@
 """Integration tests for complete report workflows."""
 
 import pytest
-from pathlib import Path
+
 from notebookmd import Notebook, NotebookConfig
 
 
@@ -41,8 +41,8 @@ def test_multiple_sections(tmp_path):
     n = Notebook(out_md=str(tmp_path / "multi.md"))
 
     for i in range(5):
-        n.section(f"Section {i+1}")
-        n.note(f"Content {i+1}")
+        n.section(f"Section {i + 1}")
+        n.note(f"Content {i + 1}")
 
     md = n.to_markdown()
 

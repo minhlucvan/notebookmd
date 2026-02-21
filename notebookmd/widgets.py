@@ -9,7 +9,8 @@ st.success, st.error, st.warning, st.info, st.image, and more.
 from __future__ import annotations
 
 import json as _json
-from typing import Any, Literal, Sequence
+from collections.abc import Sequence
+from typing import Any, Literal
 
 try:
     import pandas as pd
@@ -305,7 +306,7 @@ def render_title(text: str, anchor: str | None = None) -> str:
         anchor: Optional HTML anchor ID.
     """
     if anchor:
-        return f'# {text} {{#{anchor}}}\n\n'
+        return f"# {text} {{#{anchor}}}\n\n"
     return f"# {text}\n\n"
 
 
@@ -424,9 +425,7 @@ def render_exception(exc: Exception) -> str:
     Args:
         exc: The exception to display.
     """
-    return (
-        f"> ❌ **{type(exc).__name__}:** {str(exc)}\n\n"
-    )
+    return f"> ❌ **{type(exc).__name__}:** {exc!s}\n\n"
 
 
 def render_progress(value: float, text: str = "") -> str:
@@ -609,7 +608,7 @@ def render_code_block(body: str, language: str = "python", line_numbers: bool = 
     if line_numbers:
         lines = body.rstrip().split("\n")
         width = len(str(len(lines)))
-        numbered = "\n".join(f"{i+1:>{width}} | {line}" for i, line in enumerate(lines))
+        numbered = "\n".join(f"{i + 1:>{width}} | {line}" for i, line in enumerate(lines))
         return f"```{language}\n{numbered}\n```\n\n"
     return f"```{language}\n{body.rstrip()}\n```\n\n"
 

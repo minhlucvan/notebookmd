@@ -51,7 +51,9 @@ class AssetManager:
         try:
             import matplotlib.pyplot as plt
         except ImportError:
-            raise ImportError("matplotlib is required for saving figures. Install with: pip install notebookmd[plotting]")
+            raise ImportError(
+                "matplotlib is required for saving figures. Install with: pip install notebookmd[plotting]"
+            ) from None
 
         self.ensure_dir()
         out_file = self.assets_dir / filename
@@ -142,6 +144,7 @@ class AssetManager:
             except Exception:
                 # Last resort: save the Vega-Lite JSON spec
                 import json
+
                 json_name = Path(filename).stem + ".json"
                 out_file = self.assets_dir / json_name
                 spec = chart.to_dict()
@@ -171,11 +174,13 @@ class AssetManager:
             # Try numpy array via PIL
             try:
                 from PIL import Image
+
                 img = Image.fromarray(source)
                 img.save(str(out_file))
             except ImportError:
                 # Fallback via matplotlib
                 import matplotlib.pyplot as plt
+
                 fig, ax = plt.subplots()
                 ax.imshow(source)
                 ax.axis("off")

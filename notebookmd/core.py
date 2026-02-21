@@ -9,11 +9,12 @@ can add new methods via entry points or ``Notebook.use()``.
 from __future__ import annotations
 
 import types
+from collections.abc import Generator, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Generator, Sequence
+from typing import TYPE_CHECKING, Any
 
 from .assets import AssetManager
 from .widgets import render_column_separator, render_columns_end, render_tab_end, render_tab_start
@@ -99,7 +100,6 @@ class Notebook:
 
     def _apply_plugin(self, plugin_cls: type[PluginSpec]) -> None:
         """Instantiate a plugin and bind its methods to this Notebook."""
-        from .plugins import PluginSpec
 
         plugin = plugin_cls()
         self._plugins[plugin_cls.name] = plugin

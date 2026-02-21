@@ -34,7 +34,7 @@ import logging
 from typing import TYPE_CHECKING, Any, ClassVar
 
 if TYPE_CHECKING:
-    from typing import Sequence
+    from collections.abc import Sequence
 
     from .assets import AssetManager
     from .core import NotebookConfig

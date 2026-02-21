@@ -20,7 +20,7 @@ from pathlib import Path
 # Allow running from any location without install
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-from notebookmd import nb, NotebookConfig
+from notebookmd import NotebookConfig, nb
 
 # Optional imports — graceful fallback
 try:
@@ -34,8 +34,8 @@ try:
     import matplotlib
 
     matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
     import matplotlib.dates as mdates
+    import matplotlib.pyplot as plt
 
     HAS_MPL = True
 except ImportError:
@@ -95,12 +95,7 @@ def main():
 
     # ── Weekly Aggregation ──
     n.section("Weekly Aggregation")
-    weekly = (
-        df.set_index("date")
-        .resample("W")["close"]
-        .agg(["mean", "min", "max", "count"])
-        .reset_index()
-    )
+    weekly = df.set_index("date").resample("W")["close"].agg(["mean", "min", "max", "count"]).reset_index()
     weekly.columns = ["week", "avg_close", "min_close", "max_close", "trading_days"]
     n.table(weekly, name="Weekly price statistics")
 
@@ -133,7 +128,7 @@ def main():
 
         n.section("Volume Chart")
         fig, ax = plt.subplots(figsize=(10, 3))
-        colors = ["#22c55e" if c >= o else "#ef4444" for c, o in zip(df["close"], df["open"])]
+        colors = ["#22c55e" if c >= o else "#ef4444" for c, o in zip(df["close"], df["open"], strict=True)]
         ax.bar(df["date"], df["volume"], color=colors, width=0.8)
         ax.set_title("VCB Daily Trading Volume")
         ax.set_xlabel("Date")

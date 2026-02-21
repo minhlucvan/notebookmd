@@ -1,16 +1,15 @@
 """Unit tests for notebookmd.emitters module."""
 
-import sys
 import pytest
-from unittest.mock import patch
+
 from notebookmd.emitters import (
-    render_md,
-    render_note,
     render_code,
-    render_table,
     render_figure,
     render_kv,
+    render_md,
+    render_note,
     render_summary,
+    render_table,
 )
 
 
@@ -34,14 +33,14 @@ def test_render_note_blockquote():
     """Test format as > **Note:** {text}."""
     result = render_note("This is a note")
 
-    assert "> **Note:** This is a note\n\n" == result
+    assert result == "> **Note:** This is a note\n\n"
 
 
 def test_render_note_strips_text():
     """Test leading/trailing whitespace removed."""
     result = render_note("  Some note  \n")
 
-    assert "> **Note:** Some note\n\n" == result
+    assert result == "> **Note:** Some note\n\n"
 
 
 # render_code() tests
@@ -230,6 +229,7 @@ def test_render_summary_many_columns():
     """Test column truncation with … (+N more)."""
     try:
         import pandas as pd
+
         # Create DataFrame with many columns
         wide_df = pd.DataFrame({f"col_{i}": range(5) for i in range(25)})
         result = render_summary(wide_df, title="Wide Data")
@@ -255,6 +255,7 @@ def test_render_summary_no_numeric():
     """Test no stats section if no numeric columns."""
     try:
         import pandas as pd
+
         text_df = pd.DataFrame({"name": ["Alice", "Bob"], "city": ["NYC", "LA"]})
         result = render_summary(text_df, title="Text Data")
 
@@ -288,6 +289,7 @@ def test_render_summary_empty_df():
     """Test empty DataFrame (0 rows)."""
     try:
         import pandas as pd
+
         empty_df = pd.DataFrame()
         result = render_summary(empty_df, title="Empty")
 
@@ -302,6 +304,7 @@ def test_render_summary_wide_df():
     """Test > 20 columns with truncation."""
     try:
         import pandas as pd
+
         wide_df = pd.DataFrame({f"col_{i}": range(3) for i in range(30)})
         result = render_summary(wide_df, title="Wide")
 
