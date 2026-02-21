@@ -3,8 +3,8 @@
 ## Overview
 
 notebookmd is a Python package that provides a **Streamlit-like API** for generating structured
-Markdown reports. It is designed for AI agents doing data analysis — agents call `st.metric()`,
-`st.table()`, `st.line_chart()` etc. and get clean, structured Markdown output.
+Markdown reports. It is designed for AI agents doing data analysis — agents call `n.metric()`,
+`n.table()`, `n.line_chart()` etc. and get clean, structured Markdown output.
 
 ## Architecture
 
@@ -26,18 +26,18 @@ notebookmd/
 from notebookmd import nb, NotebookConfig
 
 cfg = NotebookConfig(max_table_rows=30)
-st = nb("output/report.md", title="My Report", cfg=cfg)
+n = nb("output/report.md", title="My Report", cfg=cfg)
 
-st.section("Section Name")
-st.metric("Label", "Value", delta="+10%")
-st.table(df, name="Data Table")
-st.line_chart(df, x="date", y="value", title="Trend")
-st.save()
+n.section("Section Name")
+n.metric("Label", "Value", delta="+10%")
+n.table(df, name="Data Table")
+n.line_chart(df, x="date", y="value", title="Trend")
+n.save()
 ```
 
-### The `st` variable convention
-Always name the Notebook instance `st` to match Streamlit conventions. This makes code
-instantly recognizable to developers familiar with Streamlit.
+### The `n` variable convention
+Always name the Notebook instance `n` (from `nb()`). This keeps code concise and
+distinguishes notebookmd from Streamlit's `st` convention.
 
 ## Dependencies
 

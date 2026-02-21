@@ -1,35 +1,35 @@
-"""notebookmd — Streamlit-like API for AI agents to generate markdown reports.
+"""notebookmd — The notebook for AI agents.
 
-Provides a familiar ``st.*``-style API that renders to clean, agent-readable
-Markdown.  Designed for AI agents doing data analysis — just call functions
-sequentially, no cells or execution contexts needed.
+Generates structured Markdown reports from sequential Python function calls.
+Designed for AI agents doing data analysis — just call functions sequentially,
+no cells, no kernel, no execution context needed.
 
 Usage::
 
     from notebookmd import nb
 
-    st = nb("dist/report.md", title="VCB Investment Analysis")
+    n = nb("dist/report.md", title="VCB Investment Analysis")
 
-    st.header("Key Metrics")
-    st.metric("ROE", "22.5%", delta="+4.5%")
-    st.metric_row([
+    n.header("Key Metrics")
+    n.metric("ROE", "22.5%", delta="+4.5%")
+    n.metric_row([
         {"label": "P/E", "value": "15.2x"},
         {"label": "P/B", "value": "2.3x"},
         {"label": "Dividend", "value": "1.2%"},
     ])
 
-    st.header("Price Trend")
-    st.line_chart(df, x="date", y="close", title="VCB Close Price")
-    st.dataframe(df.head(), name="Recent Prices")
+    n.header("Price Trend")
+    n.line_chart(df, x="date", y="close", title="VCB Close Price")
+    n.dataframe(df.head(), name="Recent Prices")
 
-    st.header("Analysis")
-    st.write("VCB shows **strong fundamentals** with best-in-class ROE.")
-    st.success("Analysis complete!")
+    n.header("Analysis")
+    n.write("VCB shows **strong fundamentals** with best-in-class ROE.")
+    n.success("Analysis complete!")
 
-    with st.expander("Raw Data"):
-        st.dataframe(df)
+    with n.expander("Raw Data"):
+        n.dataframe(df)
 
-    st.save()
+    n.save()
 """
 
 from .core import Notebook, NotebookConfig
@@ -53,13 +53,13 @@ def nb(
         cfg: Optional NotebookConfig for customizing rendering behavior.
 
     Returns:
-        A configured Notebook instance with Streamlit-like API.
+        A configured Notebook instance ready for sequential method calls.
 
     Example::
 
-        st = nb("dist/report.md", title="My Analysis")
-        st.header("Overview")
-        st.metric("Revenue", "$1.2M", delta="+12%")
-        st.save()
+        n = nb("dist/report.md", title="My Analysis")
+        n.header("Overview")
+        n.metric("Revenue", "$1.2M", delta="+12%")
+        n.save()
     """
     return Notebook(out_md=out_md, title=title, assets_dir=assets_dir, cfg=cfg)

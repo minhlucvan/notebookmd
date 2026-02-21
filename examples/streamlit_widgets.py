@@ -35,27 +35,27 @@ except ImportError:
 
 def main():
     cfg = NotebookConfig(max_table_rows=20)
-    st = nb("dist/streamlit_demo.md", title="Streamlit Widgets Demo", cfg=cfg)
+    n = nb("dist/streamlit_demo.md", title="Streamlit Widgets Demo", cfg=cfg)
 
     # ── Text Elements ──
-    st.section("Text Elements")
-    st.title("Dashboard Title")
-    st.header("Section Header", divider=True)
-    st.subheader("Subsection")
-    st.caption("This is a small caption text")
-    st.text("Fixed-width preformatted text output")
-    st.latex(r"\bar{x} = \frac{1}{n} \sum_{i=1}^{n} x_i")
-    st.divider()
-    st.md("Regular **markdown** with `inline code`.")
+    n.section("Text Elements")
+    n.title("Dashboard Title")
+    n.header("Section Header", divider=True)
+    n.subheader("Subsection")
+    n.caption("This is a small caption text")
+    n.text("Fixed-width preformatted text output")
+    n.latex(r"\bar{x} = \frac{1}{n} \sum_{i=1}^{n} x_i")
+    n.divider()
+    n.md("Regular **markdown** with `inline code`.")
 
     # ── Metrics ──
-    st.section("Metric Cards")
-    st.metric("Total Revenue", "$1,234,567", delta="+12.3%")
-    st.metric("Active Users", "34,521", delta="+2,100")
-    st.metric("Churn Rate", "2.1%", delta="-0.3%", delta_color="inverse")
+    n.section("Metric Cards")
+    n.metric("Total Revenue", "$1,234,567", delta="+12.3%")
+    n.metric("Active Users", "34,521", delta="+2,100")
+    n.metric("Churn Rate", "2.1%", delta="-0.3%", delta_color="inverse")
 
-    st.subheader("Metrics in a Row")
-    st.metric_row([
+    n.subheader("Metrics in a Row")
+    n.metric_row([
         {"label": "Revenue", "value": "$1.2M", "delta": "+12%"},
         {"label": "Profit", "value": "$340K", "delta": "+8%"},
         {"label": "Users", "value": "3,400", "delta": "+200"},
@@ -63,8 +63,8 @@ def main():
     ])
 
     # ── JSON Display ──
-    st.section("JSON Display")
-    st.json({
+    n.section("JSON Display")
+    n.json({
         "symbol": "VCB",
         "exchange": "HOSE",
         "metrics": {
@@ -76,50 +76,50 @@ def main():
         "tags": ["blue-chip", "state-owned", "dividend"],
     })
 
-    st.json({"compact": True, "value": 42}, expanded=False)
+    n.json({"compact": True, "value": 42}, expanded=False)
 
     # ── Status Elements ──
-    st.section("Status Elements")
-    st.success("Data loaded successfully! 1,234 rows processed.")
-    st.info("Processing will use cached data from the last 24 hours.")
-    st.warning("Missing data detected for 3 trading days.")
-    st.error("Failed to fetch real-time quotes. Using last known prices.")
-    st.progress(0.75, "Loading data...")
-    st.progress(1.0, "Complete!")
-    st.toast("New data available for VCB")
+    n.section("Status Elements")
+    n.success("Data loaded successfully! 1,234 rows processed.")
+    n.info("Processing will use cached data from the last 24 hours.")
+    n.warning("Missing data detected for 3 trading days.")
+    n.error("Failed to fetch real-time quotes. Using last known prices.")
+    n.progress(0.75, "Loading data...")
+    n.progress(1.0, "Complete!")
+    n.toast("New data available for VCB")
 
     # ── Layout: Expander ──
-    st.section("Collapsible Sections")
-    st.write("Click to expand the sections below:")
+    n.section("Collapsible Sections")
+    n.write("Click to expand the sections below:")
 
-    with st.expander("Methodology", expanded=True):
-        st.write("""
+    with n.expander("Methodology", expanded=True):
+        n.write("""
 The analysis uses a multi-factor model combining:
 - **Value**: P/E, P/B ratios relative to sector median
 - **Momentum**: 6-month and 12-month price returns
 - **Quality**: ROE, debt-to-equity, earnings stability
 """)
 
-    with st.expander("Data Sources"):
-        st.write("""
+    with n.expander("Data Sources"):
+        n.write("""
 - HOSE/HNX market data via vnstock API
 - Financial statements from company filings
 - Macro indicators from GSO/SBV
 """)
 
     # ── Layout: Tabs ──
-    st.section("Tabbed Sections")
-    tabs = st.tabs(["Overview", "Technical", "Fundamental"])
+    n.section("Tabbed Sections")
+    tabs = n.tabs(["Overview", "Technical", "Fundamental"])
 
     with tabs.tab("Overview"):
-        st.metric_row([
+        n.metric_row([
             {"label": "Price", "value": "95,400"},
             {"label": "Change", "value": "+1.2%", "delta": "+1.2%"},
             {"label": "Volume", "value": "1.5M"},
         ])
 
     with tabs.tab("Technical"):
-        st.kv({
+        n.kv({
             "RSI (14)": "62.3",
             "MACD": "Bullish crossover",
             "EMA 20": "94,200",
@@ -128,7 +128,7 @@ The analysis uses a multi-factor model combining:
         }, title="Technical Indicators")
 
     with tabs.tab("Fundamental"):
-        st.kv({
+        n.kv({
             "P/E": "15.2x",
             "P/B": "2.8x",
             "ROE": "22.1%",
@@ -137,8 +137,8 @@ The analysis uses a multi-factor model combining:
         }, title="Fundamental Metrics")
 
     # ── Code Display ──
-    st.section("Code Display")
-    st.echo(
+    n.section("Code Display")
+    n.echo(
         'df = fetch_quote("VCB", start="2025-01-01")\nprint(f"Rows: {len(df)}")',
         "Rows: 280",
     )
@@ -152,23 +152,23 @@ The analysis uses a multi-factor model combining:
             "rsi": [45 + i * 0.8 - (i % 5) * 2 for i in range(30)],
         })
 
-        st.section("DataFrame Display")
-        st.dataframe(df, name="VCB Price Data")
-        st.summary(df, title="Data Summary")
+        n.section("DataFrame Display")
+        n.dataframe(df, name="VCB Price Data")
+        n.summary(df, title="Data Summary")
 
         if HAS_MPL:
-            st.section("Convenience Charts")
-            st.line_chart(df, x="date", y="close", title="VCB Close Price")
-            st.bar_chart(df.tail(10), x="date", y="volume", title="Recent Volume")
-            st.area_chart(df, x="date", y="rsi", title="RSI Trend")
+            n.section("Convenience Charts")
+            n.line_chart(df, x="date", y="close", title="VCB Close Price")
+            n.bar_chart(df.tail(10), x="date", y="volume", title="Recent Volume")
+            n.area_chart(df, x="date", y="rsi", title="RSI Trend")
 
-        st.section("Export & Wrap-up")
-        st.export_csv(df, "vcb_demo.csv", name="VCB demo data")
-        st.connection_status("vnstock API", status="connected", details="v3.1.0")
-        st.success("Demo report complete!")
-        st.balloons()
+        n.section("Export & Wrap-up")
+        n.export_csv(df, "vcb_demo.csv", name="VCB demo data")
+        n.connection_status("vnstock API", status="connected", details="v3.1.0")
+        n.success("Demo report complete!")
+        n.balloons()
 
-    out = st.save()
+    out = n.save()
     print(f"\nReport saved to: {out}")
 
 

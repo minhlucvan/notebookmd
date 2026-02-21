@@ -74,22 +74,22 @@ class Notebook:
     """Streamlit-like report builder that renders to markdown.
 
     Designed for AI agents to generate data analysis reports with a familiar
-    ``st.*``-style API.  Just call methods sequentially — no cells, no
+    ``n.*``-style API.  Just call methods sequentially — no cells, no
     execution contexts, no stdout capture.
 
     Usage::
 
-        st = Notebook("dist/report.md", title="My Analysis")
+        n = Notebook("dist/report.md", title="My Analysis")
 
-        st.header("Key Metrics")
-        st.metric("Revenue", "$1.2M", delta="+12%")
-        st.table(df.head(), name="Preview")
+        n.header("Key Metrics")
+        n.metric("Revenue", "$1.2M", delta="+12%")
+        n.table(df.head(), name="Preview")
 
-        st.header("Charts")
-        st.line_chart(df, x="date", y="close", title="Price Trend")
+        n.header("Charts")
+        n.line_chart(df, x="date", y="close", title="Price Trend")
 
-        st.success("Analysis complete!")
-        st.save()
+        n.success("Analysis complete!")
+        n.save()
     """
 
     def __init__(
@@ -139,13 +139,13 @@ class Notebook:
         Works both as a plain call and as a context manager::
 
             # Plain call — just emits the heading, content follows below
-            st.section("Key Metrics", "Fundamental indicators for VCB")
-            st.metric("ROE", "22.5%")
-            st.kv({"P/E": "15.2x", "P/B": "2.3x"})
+            n.section("Key Metrics", "Fundamental indicators for VCB")
+            n.metric("ROE", "22.5%")
+            n.kv({"P/E": "15.2x", "P/B": "2.3x"})
 
             # Context manager — heading emitted on enter, divider on exit
-            with st.section("Price Trend"):
-                st.line_chart(df, x="date", y="close")
+            with n.section("Price Trend"):
+                n.line_chart(df, x="date", y="close")
 
         Args:
             title: Section heading text.
@@ -278,7 +278,7 @@ class Notebook:
 
         Example::
 
-            st.metric_row([
+            n.metric_row([
                 {"label": "Revenue", "value": "$1.2M", "delta": "+12%"},
                 {"label": "Users", "value": "3,400", "delta": "+200"},
             ])
@@ -488,9 +488,9 @@ class Notebook:
 
         Usage::
 
-            with st.expander("Show details"):
-                st.md("Hidden content here")
-                st.table(df)
+            with n.expander("Show details"):
+                n.md("Hidden content here")
+                n.table(df)
         """
         self._w(render_expander_start(label, expanded=expanded))
         yield
@@ -505,8 +505,8 @@ class Notebook:
 
         Usage::
 
-            with st.container(border=True):
-                st.md("Contained content")
+            with n.container(border=True):
+                n.md("Contained content")
         """
         self._w(render_container_start(border=border))
         yield
@@ -522,11 +522,11 @@ class Notebook:
 
         Usage::
 
-            tabs = st.tabs(["Overview", "Details", "Raw Data"])
+            tabs = n.tabs(["Overview", "Details", "Raw Data"])
             with tabs.tab("Overview"):
-                st.metric("Revenue", "$1.2M")
+                n.metric("Revenue", "$1.2M")
             with tabs.tab("Details"):
-                st.table(df)
+                n.table(df)
         """
         self._w(render_tabs_header(labels))
         return _TabGroup(self, labels)
@@ -542,11 +542,11 @@ class Notebook:
 
         Usage::
 
-            cols = st.columns(3)
+            cols = n.columns(3)
             with cols.col(0):
-                st.metric("A", "100")
+                n.metric("A", "100")
             with cols.col(1):
-                st.metric("B", "200")
+                n.metric("B", "200")
         """
         self._w(render_columns_start(spec))
         n = spec if isinstance(spec, int) else len(spec)
@@ -608,7 +608,7 @@ class Notebook:
 
         Example::
 
-            st.write("Hello", {"key": "value"}, df, 42)
+            n.write("Hello", {"key": "value"}, df, 42)
         """
         self._w(render_write(*args))
 
@@ -664,9 +664,9 @@ class Notebook:
 
         Examples::
 
-            st.stat("Quality z-score", 1.5, "93rd percentile, top 7%", fmt="+.1f")
-            st.stat("P/E Ratio", 15.2)
-            st.stat("Return", 0.123, "annualized", fmt=".1%")
+            n.stat("Quality z-score", 1.5, "93rd percentile, top 7%", fmt="+.1f")
+            n.stat("P/E Ratio", 15.2)
+            n.stat("Return", 0.123, "annualized", fmt=".1%")
         """
         self._w(render_stat(label, value, description=description, fmt=fmt))
 
@@ -683,7 +683,7 @@ class Notebook:
 
         Example::
 
-            st.stats([
+            n.stats([
                 {"label": "P/E", "value": 15.2, "fmt": ".1f"},
                 {"label": "P/B", "value": 2.8, "fmt": ".1f"},
                 {"label": "ROE", "value": 0.221, "fmt": ".1%"},
@@ -713,7 +713,7 @@ class Notebook:
 
         Example::
 
-            st.change("Revenue", 1_200_000, 1_000_000, fmt=",.0f")
+            n.change("Revenue", 1_200_000, 1_000_000, fmt=",.0f")
             # -> "Revenue: **1,200,000** (^ +200,000, +20.0%)"
         """
         self._w(render_change(label, current, previous, fmt=fmt, pct=pct, invert=invert))
@@ -731,8 +731,8 @@ class Notebook:
 
         Examples::
 
-            st.ranking("Quality z-score", 1.5, percentile=93, fmt="+.1f")
-            st.ranking("Market Cap", 12_500, rank=3, total=50, fmt=",.0f")
+            n.ranking("Quality z-score", 1.5, percentile=93, fmt="+.1f")
+            n.ranking("Market Cap", 12_500, rank=3, total=50, fmt=",.0f")
         """
         self._w(render_ranking(label, value, rank=rank, total=total, percentile=percentile, fmt=fmt))
 
@@ -837,9 +837,9 @@ class _SectionContext:
     visually close the section::
 
         # Both styles are valid:
-        st.section("Setup")           # plain call
-        with st.section("Analysis"):  # context manager
-            st.write("...")
+        n.section("Setup")           # plain call
+        with n.section("Analysis"):  # context manager
+            n.write("...")
     """
 
     def __init__(self, notebook: Notebook):
@@ -859,11 +859,11 @@ class _TabGroup:
 
     Usage::
 
-        tabs = st.tabs(["Overview", "Details"])
+        tabs = n.tabs(["Overview", "Details"])
         with tabs.tab("Overview"):
-            st.md("Overview content")
+            n.md("Overview content")
         with tabs.tab("Details"):
-            st.table(df)
+            n.table(df)
     """
 
     def __init__(self, notebook: Notebook, labels: Sequence[str]):
@@ -887,11 +887,11 @@ class _ColumnGroup:
 
     Usage::
 
-        cols = st.columns(3)
+        cols = n.columns(3)
         with cols.col(0):
-            st.metric("A", "100")
+            n.metric("A", "100")
         with cols.col(1):
-            st.metric("B", "200")
+            n.metric("B", "200")
     """
 
     def __init__(self, notebook: Notebook, n: int):

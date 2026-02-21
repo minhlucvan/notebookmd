@@ -12,22 +12,22 @@ When generating data analysis reports, use notebookmd to produce structured Mark
 ## How to use notebookmd
 
 1. Import: `from notebookmd import nb, NotebookConfig`
-2. Create: `st = nb("output/report.md", title="Report Title")`
-3. Build sections with `st.section()`, `st.header()`, etc.
-4. Add data with `st.table()`, `st.metric()`, `st.dataframe()`
-5. Add charts with `st.line_chart()`, `st.bar_chart()`, `st.figure()`
-6. Save with `st.save()` or get string with `st.to_markdown()`
+2. Create: `n = nb("output/report.md", title="Report Title")`
+3. Build sections with `n.section()`, `n.header()`, etc.
+4. Add data with `n.table()`, `n.metric()`, `n.dataframe()`
+5. Add charts with `n.line_chart()`, `n.bar_chart()`, `n.figure()`
+6. Save with `n.save()` or get string with `n.to_markdown()`
 
 ## Key conventions
 
-- Always name the Notebook instance `st` (Streamlit convention)
-- Use `st.section("Name")` to organize the report into logical sections
-- Use `st.metric()` for KPIs and single values
-- Use `st.metric_row()` for multiple metrics side-by-side
-- Use `st.table()` / `st.dataframe()` for tabular data
-- Use `st.kv()` for key-value dictionaries
-- Use `st.summary()` for auto-generated DataFrame statistics
-- Use `st.export_csv()` to save data as CSV artifacts
-- Use `st.success()` / `st.error()` / `st.warning()` / `st.info()` for status messages
-- Use `with st.expander("Label"):` for collapsible content
-- Use `st.badge("TEXT", style="success")` for inline status pills
+- Always name the Notebook instance `n` (from `nb()` factory)
+- Use `n.section("Name")` to organize the report into logical sections
+- Use `n.metric()` for KPIs and single values
+- Use `n.metric_row()` for multiple metrics side-by-side
+- Use `n.table()` / `n.dataframe()` for tabular data
+- Use `n.kv()` for key-value dictionaries
+- Use `n.summary()` for auto-generated DataFrame statistics
+- Use `n.export_csv()` to save data as CSV artifacts
+- Use `n.success()` / `n.error()` / `n.warning()` / `n.info()` for status messages
+- Use `with n.expander("Label"):` for collapsible content
+- Use `n.badge("TEXT", style="success")` for inline status pills

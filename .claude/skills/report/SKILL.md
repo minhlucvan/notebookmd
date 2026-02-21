@@ -20,7 +20,7 @@ Report topic: $ARGUMENTS
 ```python
 from notebookmd import nb, NotebookConfig
 
-st = nb("dist/report.md", title="<descriptive title>")
+n = nb("dist/report.md", title="<descriptive title>")
 ```
 
 ### 2. Report Structure
@@ -29,81 +29,81 @@ Adapt the structure to the topic. Common patterns:
 
 **Executive Summary Pattern:**
 ```python
-st.section("Executive Summary")
-st.metric_row([...])  # Top-line KPIs
-st.write("Brief overview...")
+n.section("Executive Summary")
+n.metric_row([...])  # Top-line KPIs
+n.write("Brief overview...")
 
-st.section("Background")
-st.write("Context and motivation...")
+n.section("Background")
+n.write("Context and motivation...")
 
-st.section("Methodology")
-with st.expander("Details"):
-    st.write("Step-by-step approach...")
+n.section("Methodology")
+with n.expander("Details"):
+    n.write("Step-by-step approach...")
 
-st.section("Results")
-st.table(results_df, name="Key Results")
-st.kv(metrics_dict, title="Performance Metrics")
+n.section("Results")
+n.table(results_df, name="Key Results")
+n.kv(metrics_dict, title="Performance Metrics")
 
-st.section("Conclusion")
-st.success("Summary of outcomes")
+n.section("Conclusion")
+n.success("Summary of outcomes")
 ```
 
 **Technical Report Pattern:**
 ```python
-st.section("Overview")
-st.kv(config_dict, title="Configuration")
+n.section("Overview")
+n.kv(config_dict, title="Configuration")
 
-st.section("Implementation")
-st.code(code_snippet, lang="python")
-st.note("Key technical detail...")
+n.section("Implementation")
+n.code(code_snippet, lang="python")
+n.note("Key technical detail...")
 
-st.section("Results")
-st.table(benchmarks_df, name="Benchmarks")
+n.section("Results")
+n.table(benchmarks_df, name="Benchmarks")
 
-st.section("Next Steps")
-st.write("1. Item one\n2. Item two")
+n.section("Next Steps")
+n.write("1. Item one\n2. Item two")
 ```
 
 **Status Report Pattern:**
 ```python
-st.section("Status Overview")
-st.metric_row([
+n.section("Status Overview")
+n.metric_row([
     {"label": "Complete", "value": "73%", "delta": "+5%"},
     {"label": "On Track", "value": "12/15"},
     {"label": "Blocked", "value": "2"},
 ])
 
-st.section("Completed This Period")
-st.write("- Task 1\n- Task 2")
+n.section("Completed This Period")
+n.write("- Task 1\n- Task 2")
 
-st.section("In Progress")
-st.progress(0.73, "Overall completion")
-st.write("Current work items...")
+n.section("In Progress")
+n.progress(0.73, "Overall completion")
+n.write("Current work items...")
 
-st.section("Risks & Blockers")
-st.warning("Risk description...")
-st.error("Blocker description...")
+n.section("Risks & Blockers")
+n.warning("Risk description...")
+n.error("Blocker description...")
 ```
 
 ### 3. Available Widgets
 
-**Text:** `st.title()`, `st.header()`, `st.subheader()`, `st.write()`, `st.md()`, `st.caption()`, `st.code()`, `st.latex()`, `st.text()`
+**Text:** `n.title()`, `n.header()`, `n.subheader()`, `n.write()`, `n.md()`, `n.caption()`, `n.code()`, `n.latex()`, `n.text()`
 
-**Data:** `st.metric()`, `st.metric_row()`, `st.table()`, `st.dataframe()`, `st.kv()`, `st.json()`, `st.summary()`
+**Data:** `n.metric()`, `n.metric_row()`, `n.table()`, `n.dataframe()`, `n.kv()`, `n.json()`, `n.summary()`
 
-**Status:** `st.success()`, `st.error()`, `st.warning()`, `st.info()`, `st.progress()`, `st.badge()`
+**Status:** `n.success()`, `n.error()`, `n.warning()`, `n.info()`, `n.progress()`, `n.badge()`
 
-**Layout:** `st.section()`, `st.expander()`, `st.tabs()`, `st.divider()`
+**Layout:** `n.section()`, `n.expander()`, `n.tabs()`, `n.divider()`
 
-**Analytics:** `st.stat()`, `st.stats()`, `st.change()`, `st.ranking()`
+**Analytics:** `n.stat()`, `n.stats()`, `n.change()`, `n.ranking()`
 
-**Charts:** `st.line_chart()`, `st.bar_chart()`, `st.area_chart()`, `st.figure()`
+**Charts:** `n.line_chart()`, `n.bar_chart()`, `n.area_chart()`, `n.figure()`
 
-**Export:** `st.save()`, `st.to_markdown()`, `st.export_csv()`
+**Export:** `n.save()`, `n.to_markdown()`, `n.export_csv()`
 
 ### 4. Save and Output
 
 ```python
-out = st.save()
+out = n.save()
 print(f"Report saved to: {out}")
 ```
