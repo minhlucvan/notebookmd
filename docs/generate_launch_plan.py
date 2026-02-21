@@ -681,6 +681,225 @@ n.table(
 )
 
 # ─────────────────────────────────────────────────────────────
+# Conversion Playbook — Make People Try It
+# ─────────────────────────────────────────────────────────────
+n.section("Conversion Playbook — From 'Interesting' to 'pip install'")
+
+n.write(
+    "Awareness is worthless without conversion. This section documents specific, "
+    "proven tactics from Rich, FastAPI, and Marimo that convert post readers into "
+    "actual users. Each tactic is annotated with what to mimic for notebookmd."
+)
+
+n.subheader("Tactic 1: The Zero-Friction Try Command (from Rich)")
+n.write(
+    "**What Rich did:** After `pip install rich`, users can immediately run `python -m rich` "
+    "with zero code to see a full demo of every feature. No file to create, no imports to write. "
+    "This single command converted curiosity into a dopamine hit.\n\n"
+    "**What notebookmd should do:** Create a `python -m notebookmd` command that generates a "
+    "complete demo report to `demo_report.md` and opens it. The user sees the full power of "
+    "the library in 5 seconds:"
+)
+n.code(
+    """$ pip install notebookmd
+$ python -m notebookmd
+
+✨ Demo report generated: demo_report.md
+   - 5 metrics with deltas
+   - 2 data tables
+   - 1 line chart
+   - Collapsible sections
+   - Artifact index
+
+Open demo_report.md to see the output!""",
+    lang="bash",
+)
+n.write(
+    "**Why this works:** Every Reddit post, every HN comment, every tweet should end with "
+    "these two lines. The reader can go from \"interesting\" to \"wow\" in under 30 seconds. "
+    "Rich's `python -m rich` is cited by Will McGugan as one of the key drivers of adoption."
+)
+
+n.subheader("Tactic 2: The README as Conversion Funnel (from FastAPI)")
+n.write(
+    "**What FastAPI did:** The README follows a strict funnel:\n"
+    "1. Hook (tagline + badges)\n"
+    "2. Social proof (Microsoft, Netflix, Uber logos)\n"
+    "3. Install command\n"
+    "4. Minimal working example (8 lines)\n"
+    "5. Run command\n"
+    "6. Immediate result (JSON response in browser)\n\n"
+    "Every step is copy-pasteable. Nothing requires thinking.\n\n"
+    "**What notebookmd should mimic:**"
+)
+n.code(
+    """# README structure (in order)
+
+## 1. Hook (first 2 lines)
+> **The notebook for AI agents.** Write Python. Get Markdown reports.
+
+## 2. Badges (star count, PyPI version, zero deps, tests passing)
+
+## 3. GIF demo (code → rendered output, 5 seconds)
+
+## 4. Install + Try (copy-paste)
+pip install notebookmd
+python -m notebookmd  # instant demo
+
+## 5. Minimal working example (6 lines)
+from notebookmd import nb
+n = nb("report.md", title="My Report")
+n.metric("Revenue", "$4.2M", delta="+18%")
+n.table(df, name="Results")
+n.save()
+
+## 6. Show the output (screenshot of rendered Markdown)
+
+## 7. Feature list (scan-friendly bullets)
+
+## 8. Comparison table (vs Jupyter, Streamlit, print())
+
+## 9. More examples link""",
+    lang="markdown",
+)
+
+n.subheader("Tactic 3: Try Without Installing (from Marimo)")
+n.write(
+    "**What Marimo did:** A hosted playground where users can try the tool in-browser "
+    "with zero installation. Every feature demo links to a runnable notebook.\n\n"
+    "**What notebookmd can do (lighter-weight alternatives):**\n\n"
+    "- **GitHub Codespaces / Gitpod button** — One-click cloud environment with notebookmd "
+    "pre-installed and a demo script ready to run\n"
+    "- **Google Colab notebook** — A Colab notebook that `!pip install notebookmd`, runs a "
+    "demo, and shows the generated Markdown inline\n"
+    "- **Replit template** — A pre-configured Replit with a \"Run\" button\n"
+    "- **Copy-paste playground in docs** — An interactive code editor on the docs site "
+    "that renders Markdown output in real-time\n\n"
+    "Even one of these dramatically reduces the gap between \"saw a post\" and \"tried it.\""
+)
+
+n.subheader("Tactic 4: Before/After Visual Proof (from Rich)")
+n.write(
+    "**What Rich did:** Every feature showed the ugly default Python output next to the "
+    "beautiful Rich-formatted version. The visual contrast was immediately shareable.\n\n"
+    "**What notebookmd should create:**"
+)
+n.table(
+    pd.DataFrame(
+        [
+            ["Agent text dump", "notebookmd report", "Reddit, HN, X thread"],
+            ["Raw print() metrics", "n.metric() with delta arrows", "X thread tweet 3"],
+            ["Unformatted data", "n.table() with headers", "README, blog post"],
+            ["No visualization", "n.line_chart() embedded PNG", "Product Hunt gallery"],
+            ["Scattered files", "Artifact index + auto-linked assets", "README features section"],
+        ],
+        columns=["Before (ugly)", "After (notebookmd)", "Where to use"],
+    ),
+    name="Before/After Comparison Assets",
+)
+n.write(
+    "**The before/after image is the single most shareable asset.** Rich's entire viral "
+    "spread was built on the visual contrast. For notebookmd, the contrast is between "
+    "a wall of `print()` text and a structured Markdown report with metrics, tables, and charts."
+)
+
+n.subheader("Tactic 5: Progressive Complexity Ladder (from FastAPI + Rich)")
+n.write(
+    "**What they did:** Started with the simplest possible example, then gradually showed "
+    "more advanced features. Never overwhelmed the reader upfront.\n\n"
+    "**notebookmd's complexity ladder for posts and docs:**"
+)
+n.code(
+    """# Level 1: One-liner (in tweet or comment)
+python -m notebookmd  # generates a full demo report
+
+# Level 2: Three lines (in Reddit post)
+from notebookmd import nb
+n = nb("report.md", title="My Report")
+n.metric("Revenue", "$4.2M", delta="+18%")
+n.save()
+
+# Level 3: Full example (in README)
+n = nb("report.md", title="Q4 Analysis")
+n.metric_row([...])
+n.table(df, name="Results")
+n.line_chart(df, x="date", y="value")
+n.save()
+
+# Level 4: Advanced (in tutorial blog post)
+with n.expander("Details"):
+    n.summary(df)
+    n.export_csv(df, "data.csv")
+n.badge("COMPLETE", style="success")""",
+    lang="python",
+)
+
+n.subheader("Tactic 6: Social Proof in Every Post (from FastAPI)")
+n.write(
+    "**What FastAPI did:** Every mention included logos of companies using it (Microsoft, "
+    "Netflix, Uber). This transformed \"random library\" into \"trusted tool.\"\n\n"
+    "**What notebookmd should do immediately after launch:**\n\n"
+    "- Add a \"Used by\" section to the README as soon as anyone notable uses it\n"
+    "- Screenshot any positive tweets/comments and add to a \"What people are saying\" section\n"
+    "- If any agent framework (LangChain, CrewAI) integrates it, feature that prominently\n"
+    "- Track GitHub stars publicly (star-history.com badge in README)\n"
+    "- After the first blog mention, add \"Featured in\" badges"
+)
+
+n.subheader("Tactic 7: The Agent Demo That Sells Itself")
+n.write(
+    "**Unique to notebookmd — no comparable library has done this:**\n\n"
+    "Create a short script or video showing an AI agent (Claude or GPT) analyzing a CSV "
+    "file and producing a notebookmd report in real-time. The workflow:\n\n"
+    "1. User gives agent a CSV file and asks \"analyze this data\"\n"
+    "2. Agent writes a Python script using notebookmd\n"
+    "3. Script runs, generates `report.md` with metrics, tables, charts\n"
+    "4. Show the rendered Markdown — clean, structured, professional\n\n"
+    "**This demo is the killer app.** No other library can show this workflow. "
+    "It makes the value proposition visceral: *\"this is what your agent's output "
+    "looks like with notebookmd vs without it.\"*\n\n"
+    "Post this as:\n"
+    "- A 30-second GIF in the GitHub README\n"
+    "- A screen recording for Product Hunt\n"
+    "- Tweet 3-4 in the X/Twitter thread\n"
+    "- The hero image in blog posts"
+)
+
+n.subheader("Tactic 8: Copy-Paste Everywhere")
+n.write(
+    "**What all successful launches share:** Every code example is copy-pasteable. "
+    "No placeholder variables, no ... ellipsis, no \"configure your settings here.\"\n\n"
+    "**Rules for notebookmd examples:**\n\n"
+    "- Every code block must run as-is (use inline data, not external files)\n"
+    "- Always show the install command right before the code\n"
+    "- Always show what the output looks like right after the code\n"
+    "- Use realistic but simple data (revenue numbers, stock prices, sales counts)\n"
+    "- End every post with the two-line install+demo:\n"
+    "  ```\n"
+    "  pip install notebookmd\n"
+    "  python -m notebookmd\n"
+    "  ```"
+)
+
+n.subheader("Conversion Checklist")
+n.table(
+    pd.DataFrame(
+        [
+            ["python -m notebookmd demo command", "Lets users try in 5 seconds", "Rich", "TODO"],
+            ["README funnel (hook → install → example → output)", "Converts GitHub visitors", "FastAPI", "TODO"],
+            ["Before/after comparison image", "Most shareable visual asset", "Rich", "TODO"],
+            ["Google Colab or Gitpod one-click demo", "Try without installing", "Marimo", "TODO"],
+            ["Agent demo GIF (CSV → analysis → report)", "Killer app demonstration", "Unique", "TODO"],
+            ["Copy-paste examples with inline data", "Zero friction to first success", "All", "TODO"],
+            ["Star-history badge in README", "Social proof momentum", "FastAPI", "TODO"],
+            ["'What people are saying' README section", "Social validation", "Rich", "TODO"],
+        ],
+        columns=["Tactic", "Why It Works", "Inspired By", "Status"],
+    ),
+    name="Conversion Tactics Checklist",
+)
+
+# ─────────────────────────────────────────────────────────────
 # Success Patterns from Similar Projects
 # ─────────────────────────────────────────────────────────────
 n.section("Lessons from Successful Open-Source Launches")
