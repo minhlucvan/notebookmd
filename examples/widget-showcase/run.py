@@ -71,7 +71,7 @@ def main():
     n.code('import notebookmd\nn = notebookmd.nb("report.md")\nn.metric("Users", 42)', lang="python")
     n.subheader("Echo (Code + Output)")
     n.echo(
-        'df = fetch_quote("VCB", start="2025-01-01")\nprint(f"Rows: {len(df)}")',
+        'df = fetch_quote("AAPL", start="2025-01-01")\nprint(f"Rows: {len(df)}")',
         "Rows: 280",
     )
 
@@ -117,7 +117,7 @@ def main():
     n.change("Monthly Revenue", 1_240_000, 1_105_000, fmt=",.0f", pct=True)
 
     n.subheader("Ranking")
-    n.ranking("VCB", 104.60, rank=1, total=27, percentile=96.3, fmt=",.2f")
+    n.ranking("AAPL", 267.40, rank=1, total=30, percentile=96.3, fmt=",.2f")
 
     # ══════════════════════════════════════════════════════════════
     # JSON DISPLAY
@@ -125,10 +125,10 @@ def main():
     n.section("JSON Display")
     n.json(
         {
-            "symbol": "VCB",
-            "exchange": "HOSE",
-            "metrics": {"pe_ratio": 15.2, "pb_ratio": 2.8, "dividend_yield": 0.012},
-            "tags": ["blue-chip", "state-owned", "dividend"],
+            "symbol": "AAPL",
+            "exchange": "NASDAQ",
+            "metrics": {"pe_ratio": 32.5, "pb_ratio": 48.1, "dividend_yield": 0.005},
+            "tags": ["mega-cap", "tech", "dividend"],
         }
     )
     n.json({"compact": True, "value": 42}, expanded=False)
@@ -149,8 +149,8 @@ def main():
     n.progress(1.0, "Complete!")
 
     n.subheader("Toast & Connection")
-    n.toast("New data available for VCB")
-    n.connection_status("vnstock API", status="connected", details="v3.1.0")
+    n.toast("New data available for AAPL")
+    n.connection_status("Yahoo Finance API", status="connected", details="v2.0")
     n.connection_status("Redis cache", status="disconnected", details="timeout after 5s")
 
     # ══════════════════════════════════════════════════════════════
@@ -167,9 +167,9 @@ def main():
 
     with n.expander("Data Sources"):
         n.write(
-            "- HOSE/HNX market data via vnstock API\n"
-            "- Financial statements from company filings\n"
-            "- Macro indicators from GSO/SBV"
+            "- NASDAQ market data via Yahoo Finance API\n"
+            "- Financial statements from SEC filings\n"
+            "- Macro indicators from FRED/BLS"
         )
 
     # ══════════════════════════════════════════════════════════════
@@ -202,11 +202,11 @@ def main():
     with tabs.tab("Fundamental"):
         n.kv(
             {
-                "P/E": "15.2x",
-                "P/B": "2.8x",
-                "ROE": "22.1%",
-                "Dividend Yield": "1.2%",
-                "NPL Ratio": "0.8%",
+                "P/E": "32.5x",
+                "P/B": "48.1x",
+                "ROE": "157%",
+                "Dividend Yield": "0.5%",
+                "Gross Margin": "46.2%",
             },
             title="Fundamental Metrics",
         )
@@ -246,11 +246,11 @@ def main():
         n.section("Key-Value Display")
         n.kv(
             {
-                "Symbol": "VCB",
-                "Sector": "Banking",
-                "Market Cap": "$12.3B",
-                "Float": "74.2%",
-                "Dividend Yield": "1.2%",
+                "Symbol": "AAPL",
+                "Sector": "Technology",
+                "Market Cap": "$3.4T",
+                "Float": "99.6%",
+                "Dividend Yield": "0.5%",
             },
             title="Company Profile",
         )
