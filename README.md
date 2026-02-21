@@ -2,10 +2,19 @@
 
 **The notebook for AI agents.** Write Python. Get Markdown reports.
 
+[![PyPI](https://img.shields.io/pypi/v/notebookmd.svg)](https://pypi.org/project/notebookmd/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-128%20passed-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/tests-167%20passed-brightgreen.svg)]()
 [![Zero Dependencies](https://img.shields.io/badge/dependencies-zero-orange.svg)]()
+
+<!-- TODO: Replace with actual demo GIF (code on left, rendered Markdown report on right) -->
+<!-- ![Demo](docs/assets/demo.gif) -->
+
+```bash
+pip install notebookmd
+python -m notebookmd        # generates a full demo report instantly
+```
 
 ```python
 from notebookmd import nb
@@ -17,6 +26,34 @@ n.table(df.head(), name="Top Performers")
 n.success("Analysis complete!")
 n.save()
 ```
+
+<details>
+<summary><strong>See sample output</strong></summary>
+
+```markdown
+# Q4 Revenue Analysis
+
+| Label | Value | Delta |
+|:------|:------|:------|
+| **Revenue** | **$4.2M** | ▲ +18% |
+
+![Monthly Trend](assets/monthly_trend.png)
+
+### Top Performers
+
+| rank | name     | revenue |
+|-----:|:---------|--------:|
+|    1 | Alice    | $1.2M   |
+|    2 | Bob      | $980K   |
+|    3 | Charlie  | $870K   |
+
+> ✅ **Success:** Analysis complete!
+
+---
+📎 **Artifacts:** monthly_trend.png · top_performers.csv
+```
+
+</details>
 
 ---
 
@@ -83,6 +120,15 @@ for a real analysis report.
 ### Artifact management built in
 Figures and CSVs are auto-saved to an `assets/` directory with deduplication and relative
 path linking. The report includes an auto-generated artifact index. No manual file management.
+
+---
+
+## Who is this for?
+
+- **AI agent builders** — using Claude, GPT, LangChain, CrewAI for data analysis tasks
+- **Data scientists** — automating reports without Jupyter's production headaches
+- **DevOps / MLOps engineers** — report generation in CI/CD pipelines and cron jobs
+- **Python developers** — structured Markdown output from any script, no server needed
 
 ---
 
@@ -298,6 +344,37 @@ n.save()
 
 ---
 
+## Extend with Plugins
+
+notebookmd ships with 8 built-in plugins (text, data, charts, status, layout, media, analytics, utility). Add your own:
+
+```python
+from notebookmd.plugins import PluginSpec, register_plugin
+
+class FinancePlugin(PluginSpec):
+    name = "finance"
+
+    def pe_ratio(self, price: float, earnings: float) -> None:
+        ratio = price / earnings if earnings else float("inf")
+        self._w(f"**P/E Ratio:** {ratio:.1f}x\n\n")
+
+register_plugin(FinancePlugin)   # available to all notebooks
+
+# Or per-instance:
+n = nb("report.md")
+n.use(FinancePlugin)
+n.pe_ratio(150.0, 10.0)
+```
+
+Community plugins can also be distributed via `pyproject.toml` entry points:
+
+```toml
+[project.entry-points."notebookmd.plugins"]
+my_plugin = "my_package.plugin:MyPlugin"
+```
+
+---
+
 ## Configuration
 
 ```python
@@ -342,6 +419,17 @@ cd notebookmd
 pip install -e ".[dev]"
 pytest tests/ -v
 ```
+
+---
+
+## Get Started
+
+```bash
+pip install notebookmd
+python -m notebookmd
+```
+
+Star the repo if you find it useful. PRs and feedback welcome!
 
 ---
 
