@@ -1,6 +1,6 @@
 # notebookmd — Community Launch Plan
 
-_Generated: 2026-02-21 08:32:54_
+_Generated: 2026-02-21 08:35:28_
 
 ## Artifacts
 
@@ -123,75 +123,111 @@ _shape: 8 rows × 5 cols_
 
 > ℹ️ **Info:** Reddit rewards authenticity and technical substance. Posts that lead with a problem and show real output perform best. Avoid marketing language.
 
-**Post 1: r/Python (Primary Launch)**
+**Post 1: r/Python (Primary Launch — viral hook)**
+
+> ℹ️ **Info:** This post uses the "AI agents can't use Jupyter, so I built them their own notebook" angle. This framing works because it: (1) taps into the AI/agent hype, (2) acknowledges a universally known tool (Jupyter), (3) presents a clear problem→solution narrative, and (4) creates curiosity — "what does a notebook for AI agents even look like?"
 
 ```markdown
-Title: I built a Streamlit-like library that outputs Markdown instead of a web app — for AI agents and batch reports
+Title: AI agents can't use Jupyter notebooks, so I built them their own — notebookmd
 
 Body:
 
 Hey r/Python,
 
-I kept running into the same problem: I'd write a data analysis script (or have
-an AI agent write one), and the output was always ugly print() dumps or
-unstructured text. Jupyter needs a kernel, Streamlit needs a server — I just
-wanted to call functions and get a clean report.
+Here's something that's been bugging me: we have amazing AI agents that can
+analyze data, write SQL, build dashboards — but when it comes to presenting
+results? They're stuck with print() and unformatted text dumps.
 
-So I built notebookmd — a Python library with 40+ widgets (metrics, tables,
-charts, layout) that outputs structured Markdown files instead of a web app.
+Why? Because the tools we have don't work for agents:
+
+- **Jupyter** needs a running kernel, interactive cells, and a browser.
+  Agents don't have any of that.
+- **Streamlit** needs a live web server. Agents don't serve web apps.
+- **Plain Markdown** means every agent reinvents table formatting and chart
+  embedding from scratch. And the output is never consistent.
+
+So I built notebookmd — a Jupyter-style notebook that runs as plain Python
+function calls and outputs clean Markdown.
 
 ```python
 from notebookmd import nb
 
-n = nb("report.md", title="Q4 Analysis")
+n = nb("report.md", title="Q4 Revenue Analysis")
 n.metric("Revenue", "$4.2M", delta="+18%")
 n.table(df, name="Top Performers")
 n.line_chart(df, x="month", y="revenue", title="Trend")
+n.success("Analysis complete!")
 n.save()
 ```
 
-Key design decisions:
-- Zero dependencies core (pandas/matplotlib optional)
-- Streamlit-compatible API (n.metric(), n.table(), n.bar_chart()...)
-- Built-in asset management (charts saved as PNGs, auto-linked)
-- Plugin architecture for custom widgets
-- Output is readable by LLMs, humans, GitHub, and CI/CD
+The output is a self-contained Markdown file with tables, charts (as PNGs),
+metrics with delta arrows, collapsible sections, and an artifact index.
+Readable by humans, parseable by other LLMs, committable to git.
 
-I built this primarily for AI agent workflows, but it works great for any
-batch reporting or "notebook to production" pipeline.
+What makes it work for agents:
+- **Sequential API** — agents call functions one at a time, exactly how they
+  think. No cells, no execution context, no state management.
+- **Zero dependencies** — the core is pure Python. pandas/matplotlib are
+  optional extras that degrade gracefully if missing.
+- **40+ widgets** — metrics, tables, charts, badges, progress bars, tabs,
+  expanders, LaTeX, code blocks, JSON display...
+- **Built-in asset management** — charts auto-saved as PNGs, CSVs exported,
+  everything auto-linked with relative paths.
+- **Plugin architecture** — 8 built-in plugins, extend with your own.
+
+It's not just for agents though — works great for automated reports, CI/CD
+pipelines, cron jobs, or anywhere you want structured output from Python
+without spinning up a server.
+
+[Screenshot: code on left, rendered Markdown report on right]
 
 GitHub: [link]
 PyPI: pip install notebookmd
-Docs: [link]
 
-Happy to answer any questions about the architecture or design decisions!
+I've been using it with Claude for automated data analysis and it's been a
+game changer. Happy to answer any questions about the design!
 ```
 
 **Post 2: r/datascience**
 
 ```markdown
-Title: Tired of Jupyter for production reports? I made a library that generates
-Markdown reports from Python function calls
+Title: Jupyter can't run without a human. So I built a notebook that can — for
+automated reports and AI agents.
 
 Body:
 
-As a data scientist, my workflow was always:
-1. Do analysis in Python
-2. Spend 30 minutes formatting results into something shareable
-3. Realize I need to re-run it next week and do it all over again
+As a data scientist, I love Jupyter for exploration. But every time I need to
+automate a report, I hit the same wall:
 
-notebookmd fixes step 2 and 3. It's a Python library where you call functions
-like n.metric(), n.table(), n.summary() and get a clean Markdown report with
-charts, metrics, and tables — no Jupyter kernel, no Streamlit server.
+1. Jupyter needs a kernel and a browser — can't run it in a cron job
+2. nbconvert output is ugly and breaks half the time
+3. Streamlit needs a running server — overkill for a weekly PDF
 
-[Code example + output screenshot]
+I wanted something simpler: call Python functions, get a Markdown report.
 
-It's particularly useful for:
-- Automated weekly/monthly reports
-- AI agent analysis pipelines
-- Anything where you want reproducible, git-friendly report output
+So I built notebookmd. It's like writing a Jupyter notebook, but every cell
+is a function call, and the output is a clean .md file:
 
-Zero dependencies by default. MIT licensed.
+```python
+n = nb("weekly_report.md", title="Weekly Sales Report")
+n.metric_row([
+    {"label": "Revenue", "value": "$1.2M", "delta": "+8%"},
+    {"label": "Orders", "value": "3,450", "delta": "+12%"},
+    {"label": "AOV", "value": "$348", "delta": "-2%"},
+])
+n.table(top_products_df, name="Top Products")
+n.line_chart(daily_df, x="date", y="revenue", title="Daily Revenue")
+n.summary(sales_df, title="Statistical Summary")
+n.save()
+```
+
+The output includes formatted tables, metrics with delta arrows (▲/▼),
+charts saved as PNGs, and a full artifact index. Zero dependencies by
+default — add pandas/matplotlib only if you need them.
+
+I've been running this in a daily cron job for automated analysis reports
+and it's been incredibly reliable. Also works great as the output layer
+for AI agent data analysis.
 
 GitHub: [link] | PyPI: pip install notebookmd
 ```
@@ -199,21 +235,65 @@ GitHub: [link] | PyPI: pip install notebookmd
 **Post 3: r/LocalLLaMA / r/ChatGPTCoding**
 
 ```markdown
-Title: I built a report-generation library specifically designed for AI agents —
-call n.metric(), n.table(), n.chart() and get structured Markdown
+Title: Your AI agent's analysis output looks terrible. I built a library to fix
+that — 40+ widgets, structured Markdown, zero dependencies.
 
 Body:
 
-If you're building AI agents that do data analysis, you've probably noticed
-the output is always a mess — unformatted tables, no charts, just text dumps.
+If you're building AI agents that do data analysis (with Claude, GPT,
+local models, etc.), you've probably noticed the output is always a mess:
+- Unformatted tables that don't align
+- No charts or visualizations
+- Inconsistent formatting between runs
+- Just... walls of text
 
-notebookmd gives agents a proper toolkit for generating reports. The API is
-sequential (one function call at a time, exactly how agents work), and the
-output is clean Markdown that's readable by both humans and other LLMs.
+I built notebookmd to solve this. It gives agents a toolkit of 40+ widgets
+for generating professional reports:
 
-40+ widgets. Zero dependencies. Plugin system for custom needs.
+```python
+n = nb("analysis.md", title="Stock Analysis")
+n.metric("Price", "$142.50", delta="+3.2%")
+n.table(price_df, name="Price History")
+n.line_chart(price_df, x="date", y="close", title="30-Day Trend")
+n.badge("BULLISH", style="success")
+n.save()
+```
+
+The API is sequential — one function call at a time — which is exactly how
+agents work. The output is clean Markdown with embedded charts, formatted
+tables, and an artifact index.
+
+The Markdown output is also readable by other LLMs, so you can chain agents:
+one agent analyzes data → produces a notebookmd report → another agent reads
+the Markdown and summarizes it.
 
 [Before/after comparison: raw agent output vs notebookmd output]
+
+GitHub: [link] | pip install notebookmd
+```
+
+**Post 4: r/MachineLearning (optional — more technical angle)**
+
+```markdown
+Title: We need better tooling for ML experiment reporting. I built a
+zero-dependency Python library that generates structured Markdown reports.
+
+Body:
+
+Every ML team I've worked with has the same problem: you run experiments,
+get results, and then spend ages formatting them into something shareable.
+Jupyter exports are messy, Streamlit is overkill for static reports, and
+W&B/MLflow are heavy infrastructure for simple experiment summaries.
+
+notebookmd is a lightweight alternative: call Python functions
+(n.metric(), n.table(), n.bar_chart()), get a Markdown file with
+everything formatted. Zero dependencies, plugin architecture, built-in
+asset management.
+
+Particularly useful for:
+- Automated experiment reports in CI/CD
+- Agent-generated analysis summaries
+- Quick shareable reports without spinning up infrastructure
 
 GitHub: [link]
 ```
@@ -224,11 +304,12 @@ GitHub: [link]
 
 > ℹ️ **Info:** HN values technical depth, novel approaches, and solving real problems. Keep the title factual. The first comment should explain motivation and architecture.
 
-**Title options (pick one):**
+**Title options (ranked by viral potential):**
 
-1. `Show HN: notebookmd — A Streamlit-like API that outputs Markdown instead of a web app`
-2. `Show HN: notebookmd — The notebook for AI agents (Python to Markdown reports)`
-3. `Show HN: I built a zero-dependency Python library for generating structured Markdown reports`
+1. `Show HN: notebookmd — AI agents can't use Jupyter, so I built them their own notebook` *(strongest hook)*
+2. `Show HN: notebookmd — Streamlit-like API that outputs Markdown instead of a web app`
+3. `Show HN: notebookmd — The notebook for AI agents (Python to Markdown reports)`
+4. `Show HN: A zero-dependency Python library for generating structured Markdown reports`
 
 **First comment (critical for HN):**
 
@@ -267,25 +348,24 @@ GitHub: [link]
 
 ```markdown
 Tweet 1 (Hook):
-I built a Python library that works like Streamlit — but outputs
-Markdown files instead of a web app.
+AI agents can analyze your data, write SQL, and build models.
 
-40+ widgets. Zero dependencies. Built for AI agents.
+But they can't use Jupyter. They can't run Streamlit.
+They're stuck with print().
 
-It's called notebookmd. Here's why it exists: 🧵
+So I built them their own notebook. It's called notebookmd. 🧵
 
 ---
 
 Tweet 2 (Problem):
-The problem: AI agents are great at data analysis.
+The problem: Jupyter needs a kernel and a browser.
+Streamlit needs a running web server.
 
-But their output? Ugly print() dumps and unformatted text.
+AI agents have neither.
 
-- Jupyter needs a kernel
-- Streamlit needs a server
-- Raw Markdown is tedious
-
-Agents need something simpler.
+When an agent finishes analyzing your data, the output
+is always ugly, unformatted text dumps. No tables. No charts.
+No structure.
 
 ---
 
@@ -365,7 +445,7 @@ Feedback? Reply to this thread — I read everything.
 | Key | Value |
 | --- | --- |
 | Name | notebookmd |
-| Tagline | The notebook for AI agents — Write Python, get Markdown reports |
+| Tagline | AI agents can't use Jupyter — so we built them their own notebook |
 | Description (short) | A Streamlit-like Python API that outputs structured Markdown instead of a web app. 40+ widgets, zero dependencies, built for AI agents. |
 | Categories | Developer Tools, Artificial Intelligence, Open Source |
 | Pricing | Free — MIT License |
