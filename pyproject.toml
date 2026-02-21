@@ -15,6 +15,8 @@ keywords = [
     "data-analysis",
     "streamlit",
     "report-generator",
+    "plugin",
+    "extensible",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -77,6 +79,7 @@ markers = [
     "requires_matplotlib: Tests that require matplotlib to be installed",
     "slow: Tests that take more than 1 second to run",
     "integration: Integration tests that test multiple components",
+    "plugins: Tests for the plugin system",
 ]
 
 [tool.black]

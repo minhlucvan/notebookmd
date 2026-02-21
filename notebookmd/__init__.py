@@ -30,12 +30,37 @@ Usage::
         n.dataframe(df)
 
     n.save()
+
+Plugin system::
+
+    from notebookmd.plugins import PluginSpec, register_plugin
+
+    class MyPlugin(PluginSpec):
+        name = "my_plugin"
+
+        def greet(self, message: str) -> None:
+            self._w(f"> Hello: {message}\\n\\n")
+
+    # Global registration (all notebooks get it):
+    register_plugin(MyPlugin)
+
+    # Or per-instance:
+    n = nb("report.md")
+    n.use(MyPlugin)
+    n.greet("world")
 """
 
 from .core import Notebook, NotebookConfig
+from .plugins import PluginSpec, register_plugin
 
 __version__ = "0.3.0"
-__all__ = ["nb", "Notebook", "NotebookConfig"]
+__all__ = ["nb", "Notebook", "NotebookConfig", "PluginSpec", "register_plugin"]
+
+# Load built-in plugins and discover community plugins via entry points.
+# This must happen after imports but before any Notebook is created.
+from .plugins import load_default_plugins as _load_default_plugins
+
+_load_default_plugins()
 
 
 def nb(
