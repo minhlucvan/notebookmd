@@ -25,7 +25,7 @@ def _reload_modules_after_test():
 
 @pytest.mark.integration
 def test_table_without_pandas(tmp_path, monkeypatch):
-    """Test render_table() returns fallback message."""
+    """Test render_table() works with plain-Python data when pandas is unavailable."""
     # Simulate pandas not installed
     monkeypatch.setitem(sys.modules, 'pandas', None)
 
@@ -34,10 +34,14 @@ def test_table_without_pandas(tmp_path, monkeypatch):
     importlib.reload(notebookmd.emitters)
     from notebookmd.emitters import render_table
 
-    result = render_table({}, name="Test Table")
+    # Plain-Python list-of-dicts should render without pandas
+    data = [{"name": "Alice", "age": 30}, {"name": "Bob", "age": 25}]
+    result = render_table(data, name="Test Table")
 
-    assert "pandas" in result.lower()
-    assert "install" in result.lower() or "not available" in result.lower()
+    assert "#### Test Table" in result
+    assert "Alice" in result
+    assert "Bob" in result
+    assert "|" in result
 
 
 @pytest.mark.integration
