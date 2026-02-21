@@ -64,7 +64,7 @@ jobs:
       - name: Install from wheel
         run: |
           pip install dist/*.whl
-          pip install pytest
+          pip install pytest>=7.4.0 pytest-cov>=4.1.0 pandas>=2.1.0 tabulate>=0.9.0 matplotlib>=3.8.0
 
       - name: Run tests against installed package
         run: pytest tests/ -v --tb=short
