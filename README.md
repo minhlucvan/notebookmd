@@ -315,14 +315,21 @@ n = nb("report.md", title="Report", cfg=cfg)
 
 ## Examples
 
-See [`examples/`](examples/):
+See [`examples/`](examples/) — each example is a self-contained folder with a `run.py` script,
+sample data, and a generated Markdown report with assets.
 
-- **[`analysis.py`](examples/analysis.py)** — Financial analysis with data loading, aggregation, charting, CSV export
-- **[`streamlit_widgets.py`](examples/streamlit_widgets.py)** — All 40+ widgets demo
+| Example | Description | Key Features |
+|---------|-------------|--------------|
+| [financial-analysis](examples/financial-analysis/) | Stock price analysis for VCB | Tables, summary stats, weekly aggregation, price/volume charts, CSV export |
+| [widget-showcase](examples/widget-showcase/) | Tour of all 40+ widgets | Text, metrics, status, layout, charts, analytics helpers |
+| [sales-dashboard](examples/sales-dashboard/) | KPI dashboard from regional sales data | Metric cards, rankings, change indicators, tabs, margin analysis |
+| [project-status](examples/project-status/) | Sprint status report from task tracker | Badges, progress bars, team workload, estimation accuracy |
+| [data-exploration](examples/data-exploration/) | Employee dataset exploration | Summary stats, department tabs, salary box plots, scatter plots |
 
 ```bash
-python examples/analysis.py
-python examples/streamlit_widgets.py
+# Run any example
+python examples/financial-analysis/run.py
+python examples/widget-showcase/run.py
 ```
 
 ---
