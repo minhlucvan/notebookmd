@@ -30,11 +30,14 @@ from __future__ import annotations
 import argparse
 import hashlib
 import logging
-import os
 import sys
 import time
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from .runner import Runner
 
 logger = logging.getLogger("notebookmd.cli")
 
@@ -48,7 +51,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         parser.print_help()
         return 0
 
-    return args.func(args)
+    result: int = args.func(args)
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -147,7 +151,11 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     clear_parser.set_defaults(func=_cmd_cache_clear)
 
-    cache_parser.set_defaults(func=lambda args: cache_parser.print_help() or 0)
+    def _cache_help(args: argparse.Namespace) -> int:
+        cache_parser.print_help()
+        return 0
+
+    cache_parser.set_defaults(func=_cache_help)
 
     # ── version ──
     ver_parser = sub.add_parser("version", help="Show notebookmd version")
@@ -163,7 +171,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
 def _cmd_run(args: argparse.Namespace) -> int:
     """Execute a notebookmd script."""
-    from .runner import RunConfig, Runner, RunStatus
+    from .runner import RunConfig, Runner
 
     # Parse --var KEY=VALUE pairs
     variables: dict[str, str] = {}
@@ -215,7 +223,6 @@ def _run_watch_loop(runner: Runner, script_path: str) -> int:
 
 def _watch_with_polling(runner: Runner, script: Path) -> int:
     """Simple polling-based file watcher."""
-    from .runner import RunStatus
 
     last_hash = _file_hash(script)
 
@@ -242,15 +249,13 @@ def _watch_with_watchdog(runner: Runner, script: Path) -> int:
     from watchdog.events import FileModifiedEvent, FileSystemEventHandler
     from watchdog.observers import Observer
 
-    from .runner import RunStatus
-
     class ScriptHandler(FileSystemEventHandler):
         def __init__(self) -> None:
             self.changed = False
             self._last_hash = _file_hash(script)
 
         def on_modified(self, event: FileModifiedEvent) -> None:  # type: ignore[override]
-            if Path(event.src_path).resolve() == script:
+            if Path(str(event.src_path)).resolve() == script:
                 new_hash = _file_hash(script)
                 if new_hash != self._last_hash:
                     self._last_hash = new_hash
@@ -344,13 +349,13 @@ def _file_hash(path: Path) -> str:
     """Get a hash of a file's contents for change detection."""
     try:
         return hashlib.md5(path.read_bytes()).hexdigest()
-    except (OSError, IOError):
+    except OSError:
         return ""
 
 
 def _print_result(result: Any) -> None:
     """Print a RunResult summary to stderr."""
-    from .runner import RunResult, RunStatus
+    from .runner import RunStatus
 
     _info("")
     _info("-" * 50)

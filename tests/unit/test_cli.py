@@ -1,12 +1,5 @@
 """Tests for notebookmd.cli module."""
 
-import sys
-from io import StringIO
-from pathlib import Path
-from unittest.mock import patch
-
-import pytest
-
 from notebookmd.cli import _build_parser, _file_hash, main
 
 
@@ -39,12 +32,7 @@ class TestParser:
     def test_run_simple_script(self, tmp_path):
         script = tmp_path / "test.py"
         out = tmp_path / "out.md"
-        script.write_text(
-            f'from notebookmd import nb\n'
-            f'n = nb("{out}", title="Test")\n'
-            f'n.header("Hello")\n'
-            f'n.save()\n'
-        )
+        script.write_text(f'from notebookmd import nb\nn = nb("{out}", title="Test")\nn.header("Hello")\nn.save()\n')
         result = main(["run", str(script)])
         assert result == 0
         assert out.exists()
@@ -53,11 +41,11 @@ class TestParser:
         script = tmp_path / "test.py"
         out = tmp_path / "out.md"
         script.write_text(
-            f'import os\n'
-            f'from notebookmd import nb\n'
+            f"import os\n"
+            f"from notebookmd import nb\n"
             f'ticker = os.environ.get("NOTEBOOKMD_VAR_TICKER", "DEFAULT")\n'
             f'n = nb("{out}", title=ticker)\n'
-            f'n.save()\n'
+            f"n.save()\n"
         )
         result = main(["run", str(script), "--var", "ticker=AAPL"])
         assert result == 0
@@ -68,10 +56,7 @@ class TestParser:
         script = tmp_path / "test.py"
         out = tmp_path / "out.md"
         script.write_text(
-            f'from notebookmd import nb\n'
-            f'n = nb("{out}", title="LiveTest")\n'
-            f'n.header("Hello")\n'
-            f'n.save()\n'
+            f'from notebookmd import nb\nn = nb("{out}", title="LiveTest")\nn.header("Hello")\nn.save()\n'
         )
         result = main(["run", str(script), "--live"])
         assert result == 0
@@ -135,15 +120,25 @@ class TestParserBuild:
 
     def test_run_with_all_flags(self):
         parser = _build_parser()
-        args = parser.parse_args([
-            "run", "script.py",
-            "--live", "--watch",
-            "--output", "out.md",
-            "--var", "x=1", "--var", "y=2",
-            "--cache-dir", "/tmp/cache",
-            "--no-cache",
-            "--log-level", "DEBUG",
-        ])
+        args = parser.parse_args(
+            [
+                "run",
+                "script.py",
+                "--live",
+                "--watch",
+                "--output",
+                "out.md",
+                "--var",
+                "x=1",
+                "--var",
+                "y=2",
+                "--cache-dir",
+                "/tmp/cache",
+                "--no-cache",
+                "--log-level",
+                "DEBUG",
+            ]
+        )
         assert args.live is True
         assert args.watch is True
         assert args.output == "out.md"

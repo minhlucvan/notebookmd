@@ -1,115 +1,13 @@
-"""Plugin system for notebookmd — enables built-in and community extensions.
-
-Plugins add methods to the Notebook class at runtime. Each plugin declares
-a set of methods that get bound to Notebook instances when the plugin is
-loaded via ``Notebook.use()`` or auto-discovered through entry points.
-
-Built-in plugins are loaded automatically. Community plugins can be
-installed as packages that declare the ``notebookmd.plugins`` entry point.
-
-Example — creating a custom plugin::
-
-    from notebookmd.plugins import PluginSpec
-
-    class MyPlugin(PluginSpec):
-        name = "my_plugin"
-
-        def hello(self, message: str) -> None:
-            \"\"\"Emit a greeting.\"\"\"
-            self._w(f"> Hello: {message}\\n\\n")
-
-    # Register globally so all notebooks get it:
-    register_plugin(MyPlugin)
-
-    # Or per-instance:
-    n = nb("report.md")
-    n.use(MyPlugin)
-    n.hello("world")
-"""
+"""Global plugin registry and entry-point discovery for notebookmd."""
 
 from __future__ import annotations
 
 import importlib.metadata
 import logging
-from typing import TYPE_CHECKING, Any, ClassVar
 
-if TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    from .assets import AssetManager
-    from .core import NotebookConfig
+from ._base import PluginSpec
 
 logger = logging.getLogger(__name__)
-
-
-class PluginSpec:
-    """Base class for notebookmd plugins.
-
-    Subclass this and define methods that will be bound onto ``Notebook``
-    instances. Inside plugin methods, ``self`` refers to the Notebook
-    instance, so you can call ``self._w()``, ``self._ensure_started()``,
-    ``self._asset_mgr``, ``self.cfg``, etc.
-
-    Class attributes:
-        name: Unique plugin identifier (required).
-        version: Optional version string.
-        requires: Optional list of pip extras this plugin needs (informational).
-
-    Example::
-
-        class DataPlugin(PluginSpec):
-            name = "data"
-            requires = ["pandas"]
-
-            def table(self, df_obj, name="Table", max_rows=None):
-                ...
-    """
-
-    name: ClassVar[str] = ""
-    version: ClassVar[str] = "0.1.0"
-    requires: ClassVar[list[str]] = []
-
-    # -- Type stubs for the Notebook interface --
-    # At runtime, plugin methods are bound to Notebook instances via
-    # types.MethodType, so ``self`` is actually a Notebook.  These stubs
-    # let mypy see the Notebook attributes that plugins use.
-    if TYPE_CHECKING:
-        cfg: NotebookConfig
-        _asset_mgr: AssetManager
-
-        def _w(self, s: str) -> None: ...
-        def _ensure_started(self) -> None: ...
-        def _next_id(self) -> int: ...
-        def _try_render_mpl_chart(
-            self,
-            chart_type: str,
-            data: Any,
-            x: str | None,
-            y: str | Sequence[str] | None,
-            title: str,
-            x_label: str,
-            y_label: str,
-            filename: str | None,
-        ) -> str | None: ...
-
-    def get_methods(self) -> dict[str, Any]:
-        """Return a mapping of method_name -> callable for this plugin.
-
-        By default, collects all public methods (no leading underscore) that
-        are not inherited from PluginSpec itself.
-        """
-        base_attrs = set(dir(PluginSpec))
-        methods: dict[str, Any] = {}
-        for attr_name in dir(self):
-            if attr_name.startswith("_"):
-                continue
-            if attr_name in base_attrs:
-                continue
-            val = getattr(self, attr_name)
-            if callable(val):
-                methods[attr_name] = val
-        return methods
-
 
 # ── Global Plugin Registry ────────────────────────────────────────────────────
 
@@ -195,7 +93,7 @@ def load_default_plugins() -> None:
 
     Called automatically during package import. Safe to call multiple times.
     """
-    from .plugins_builtin import BUILTIN_PLUGINS
+    from . import BUILTIN_PLUGINS
 
     for plugin_cls in BUILTIN_PLUGINS:
         if plugin_cls.name not in _global_registry:

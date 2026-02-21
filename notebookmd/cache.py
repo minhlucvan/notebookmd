@@ -24,16 +24,16 @@ from __future__ import annotations
 
 import functools
 import hashlib
-import inspect
 import json
 import logging
 import os
 import pickle
 import threading
 import time
-from dataclasses import dataclass, field
+from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, TypeVar, overload
+from typing import Any, TypeVar, overload
 
 logger = logging.getLogger("notebookmd.cache")
 
@@ -127,7 +127,7 @@ def _hash_arg(obj: Any) -> str:
                 h.update(obj.values.tobytes())
             return f"df:{h.hexdigest()}"
         if isinstance(obj, pd.Series):
-            return f"series:{hashlib.md5(obj.values.tobytes()).hexdigest()}"
+            return f"series:{hashlib.md5(obj.to_numpy().tobytes()).hexdigest()}"
     except (ImportError, Exception):
         pass
 

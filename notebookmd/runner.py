@@ -21,7 +21,6 @@ Programmatic usage::
 
 from __future__ import annotations
 
-import importlib.util
 import logging
 import os
 import sys
@@ -30,7 +29,7 @@ import traceback
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, TextIO
+from typing import Any, TextIO
 
 logger = logging.getLogger("notebookmd.runner")
 
@@ -161,7 +160,7 @@ class Runner:
                 script=str(script),
                 error=f"Script not found: {script}",
             )
-        if not script.suffix == ".py":
+        if script.suffix != ".py":
             return RunResult(
                 status=RunStatus.ERROR,
                 script=str(script),
@@ -195,7 +194,7 @@ class Runner:
 
             # Execute the script
             code = compile(script.read_text(encoding="utf-8"), str(script), "exec")
-            exec(code, script_globals)  # noqa: S102
+            exec(code, script_globals)
 
             duration = time.monotonic() - start_time
 
