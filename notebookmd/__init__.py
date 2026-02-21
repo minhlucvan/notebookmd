@@ -8,22 +8,22 @@ Usage::
 
     from notebookmd import nb
 
-    n = nb("dist/report.md", title="VCB Investment Analysis")
+    n = nb("dist/report.md", title="AAPL Investment Analysis")
 
     n.header("Key Metrics")
-    n.metric("ROE", "22.5%", delta="+4.5%")
+    n.metric("ROE", "157%", delta="+12%")
     n.metric_row([
-        {"label": "P/E", "value": "15.2x"},
-        {"label": "P/B", "value": "2.3x"},
-        {"label": "Dividend", "value": "1.2%"},
+        {"label": "P/E", "value": "32.5x"},
+        {"label": "P/B", "value": "48.1x"},
+        {"label": "Dividend", "value": "0.5%"},
     ])
 
     n.header("Price Trend")
-    n.line_chart(df, x="date", y="close", title="VCB Close Price")
+    n.line_chart(df, x="date", y="close", title="AAPL Close Price")
     n.dataframe(df.head(), name="Recent Prices")
 
     n.header("Analysis")
-    n.write("VCB shows **strong fundamentals** with best-in-class ROE.")
+    n.write("AAPL shows **strong fundamentals** with consistent growth.")
     n.success("Analysis complete!")
 
     with n.expander("Raw Data"):

@@ -124,13 +124,114 @@ def test_render_table_custom_name(sample_df):
     assert "#### My Custom Table" in result
 
 
-def test_render_table_no_pandas():
-    """Test fallback message when pandas unavailable."""
-    # This test verifies the fallback when object has no to_markdown
-    result = render_table({}, name="Test")
+def test_render_table_unsupported_type():
+    """Test fallback message for unsupported data types."""
+    result = render_table("not a table", name="Test")
 
-    # Dict has no to_markdown, so should get fallback
-    assert "cannot render" in result.lower() or "note" in result.lower()
+    # String is not a supported table format, should get fallback
+    assert "unsupported" in result.lower() or "note" in result.lower()
+
+
+# render_table() with plain-Python data (no pandas required)
+def test_render_table_list_of_dicts():
+    """Test list of dicts renders as a table."""
+    data = [
+        {"name": "Alice", "age": 30, "city": "NYC"},
+        {"name": "Bob", "age": 25, "city": "LA"},
+    ]
+    result = render_table(data, name="People")
+
+    assert "#### People" in result
+    assert "| name | age | city |" in result
+    assert "| Alice | 30 | NYC |" in result
+    assert "| Bob | 25 | LA |" in result
+    assert "_shape: 2 rows × 3 cols_" in result
+
+
+def test_render_table_list_of_lists():
+    """Test list of lists renders as a table with auto-generated headers."""
+    data = [
+        [1, 2, 3],
+        [4, 5, 6],
+    ]
+    result = render_table(data, name="Numbers")
+
+    assert "#### Numbers" in result
+    assert "| col_0 | col_1 | col_2 |" in result
+    assert "| 1 | 2 | 3 |" in result
+    assert "| 4 | 5 | 6 |" in result
+    assert "_shape: 2 rows × 3 cols_" in result
+
+
+def test_render_table_list_of_lists_with_columns():
+    """Test list of lists with explicit column headers."""
+    data = [
+        [1, 2, 3],
+        [4, 5, 6],
+    ]
+    result = render_table(data, name="Numbers", columns=["x", "y", "z"])
+
+    assert "| x | y | z |" in result
+    assert "| 1 | 2 | 3 |" in result
+
+
+def test_render_table_list_of_tuples():
+    """Test list of tuples renders as a table."""
+    data = [
+        ("Alice", 30),
+        ("Bob", 25),
+    ]
+    result = render_table(data, name="Tuples", columns=["name", "age"])
+
+    assert "| name | age |" in result
+    assert "| Alice | 30 |" in result
+    assert "| Bob | 25 |" in result
+
+
+def test_render_table_dict_of_lists():
+    """Test column-oriented dict renders as a table."""
+    data = {
+        "name": ["Alice", "Bob", "Carol"],
+        "score": [95, 87, 92],
+    }
+    result = render_table(data, name="Scores")
+
+    assert "#### Scores" in result
+    assert "| name | score |" in result
+    assert "| Alice | 95 |" in result
+    assert "| Bob | 87 |" in result
+    assert "| Carol | 92 |" in result
+    assert "_shape: 3 rows × 2 cols_" in result
+
+
+def test_render_table_plain_truncation():
+    """Test truncation works for plain-Python data."""
+    data = [{"x": i, "y": i * 2} for i in range(50)]
+    result = render_table(data, name="Long", max_rows=5)
+
+    assert "#### Long" in result
+    # Should have ellipsis row
+    assert "…" in result
+    # Shape should reflect actual data size
+    assert "_shape: 50 rows × 2 cols_" in result
+    # Count data rows (excluding header, separator, ellipsis)
+    lines = [l for l in result.split("\n") if l.strip().startswith("|") and "---" not in l]
+    # header + 5 data rows + 1 ellipsis row = 7
+    assert len(lines) == 7
+
+
+def test_render_table_empty_list():
+    """Test empty list falls back to unsupported message."""
+    result = render_table([], name="Empty")
+
+    assert "unsupported" in result.lower() or "note" in result.lower()
+
+
+def test_render_table_empty_dict():
+    """Test empty dict falls back to unsupported message."""
+    result = render_table({}, name="Empty")
+
+    assert "unsupported" in result.lower() or "note" in result.lower()
 
 
 # render_figure() tests

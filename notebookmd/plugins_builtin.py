@@ -132,14 +132,30 @@ class DataPlugin(PluginSpec):
 
     name = "data"
     version = "0.3.0"
-    requires: ClassVar[list[str]] = ["pandas"]
 
-    def table(self, df_obj: Any, name: str = "Table", max_rows: int | None = None) -> None:
-        """Emit a DataFrame as a markdown table with truncation."""
+    def table(
+        self,
+        data: Any,
+        name: str = "Table",
+        max_rows: int | None = None,
+        columns: list[str] | None = None,
+    ) -> None:
+        """Emit tabular data as a markdown table with truncation.
+
+        Accepts plain-Python structures (list of dicts, list of lists,
+        column-oriented dict) with zero dependencies, or a pandas DataFrame
+        when pandas is installed.
+
+        Args:
+            data: Tabular data or a pandas DataFrame.
+            name: Section heading for the table.
+            max_rows: Maximum rows to display before truncation.
+            columns: Explicit column headers (overrides auto-detected headers).
+        """
         from .emitters import render_table
 
         n = max_rows if max_rows is not None else self.cfg.max_table_rows
-        self._w(render_table(df_obj, name=name, max_rows=n))
+        self._w(render_table(data, name=name, max_rows=n, columns=columns))
 
     def dataframe(
         self, df_obj: Any, name: str = "", max_rows: int | None = None, use_container_width: bool = False

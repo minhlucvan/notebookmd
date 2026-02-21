@@ -175,7 +175,7 @@ class Notebook:
         Works both as a plain call and as a context manager::
 
             # Plain call — just emits the heading, content follows below
-            n.section("Key Metrics", "Fundamental indicators for VCB")
+            n.section("Key Metrics", "Fundamental indicators for AAPL")
             n.metric("ROE", "22.5%")
             n.kv({"P/E": "15.2x", "P/B": "2.3x"})
 

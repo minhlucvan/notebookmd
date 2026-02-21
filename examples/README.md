@@ -7,7 +7,7 @@ includes sample data, a run script, and a generated README.md report with assets
 
 | Demo | Description | Key Features |
 |------|-------------|--------------|
-| [financial-analysis](financial-analysis/) | Stock price analysis for VCB | Tables, summary stats, weekly aggregation, price/volume charts, CSV export |
+| [financial-analysis](financial-analysis/) | Stock price analysis for AAPL | Tables, summary stats, weekly aggregation, price/volume charts, CSV export |
 | [widget-showcase](widget-showcase/) | Tour of all 40+ widgets | Text, metrics, status, layout, charts, analytics helpers, celebration |
 | [sales-dashboard](sales-dashboard/) | KPI dashboard from regional sales data | Metric cards, rankings, change indicators, tabs, margin analysis |
 | [project-status](project-status/) | Sprint status report from task tracker | Badges, progress bars, team workload, estimation accuracy, risk callouts |
