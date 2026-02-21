@@ -320,7 +320,7 @@ sample data, and a generated Markdown report with assets.
 
 | Example | Description | Key Features |
 |---------|-------------|--------------|
-| [financial-analysis](examples/financial-analysis/) | Stock price analysis for VCB | Tables, summary stats, weekly aggregation, price/volume charts, CSV export |
+| [financial-analysis](examples/financial-analysis/) | Stock price analysis for AAPL | Tables, summary stats, weekly aggregation, price/volume charts, CSV export |
 | [widget-showcase](examples/widget-showcase/) | Tour of all 40+ widgets | Text, metrics, status, layout, charts, analytics helpers |
 | [sales-dashboard](examples/sales-dashboard/) | KPI dashboard from regional sales data | Metric cards, rankings, change indicators, tabs, margin analysis |
 | [project-status](examples/project-status/) | Sprint status report from task tracker | Badges, progress bars, team workload, estimation accuracy |

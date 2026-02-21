@@ -2,7 +2,7 @@ A comprehensive tour of every widget available in `notebookmd`.
 
 # Widget Showcase
 
-_Generated: 2026-02-21 08:12:19_
+_Generated: 2026-02-21 11:40:50_
 
 ## Artifacts
 
@@ -50,7 +50,7 @@ n.metric("Users", 42)
 ### Echo (Code + Output)
 
 ```python
-df = fetch_quote("VCB", start="2025-01-01")
+df = fetch_quote("AAPL", start="2025-01-01")
 print(f"Rows: {len(df)}")
 ```
 
@@ -108,22 +108,22 @@ Monthly Revenue: **1,240,000** (▲ +135,000, +12.2%)
 
 ### Ranking
 
-VCB: **104.60** (96th percentile, top 4%, #1 of 27)
+AAPL: **267.40** (96th percentile, top 4%, #1 of 30)
 
 ## JSON Display
 
 ```json
 {
-  "symbol": "VCB",
-  "exchange": "HOSE",
+  "symbol": "AAPL",
+  "exchange": "NASDAQ",
   "metrics": {
-    "pe_ratio": 15.2,
-    "pb_ratio": 2.8,
-    "dividend_yield": 0.012
+    "pe_ratio": 32.5,
+    "pb_ratio": 48.1,
+    "dividend_yield": 0.005
   },
   "tags": [
-    "blue-chip",
-    "state-owned",
+    "mega-cap",
+    "tech",
     "dividend"
   ]
 }
@@ -155,9 +155,9 @@ VCB: **104.60** (96th percentile, top 4%, #1 of 27)
 
 ### Toast & Connection
 
-> 🔔 New data available for VCB
+> 🔔 New data available for AAPL
 
-🟢 **vnstock API**: connected — v3.1.0
+🟢 **Yahoo Finance API**: connected — v2.0
 
 🔴 **Redis cache**: disconnected — timeout after 5s
 
@@ -177,9 +177,9 @@ The analysis uses a multi-factor model combining:
 <details>
 <summary><strong>Data Sources</strong></summary>
 
-- HOSE/HNX market data via vnstock API
-- Financial statements from company filings
-- Macro indicators from GSO/SBV
+- NASDAQ market data via Yahoo Finance API
+- Financial statements from SEC filings
+- Macro indicators from FRED/BLS
 
 
 </details>
@@ -217,11 +217,11 @@ The analysis uses a multi-factor model combining:
 
 | Key | Value |
 | --- | --- |
-| P/E | 15.2x |
-| P/B | 2.8x |
-| ROE | 22.1% |
-| Dividend Yield | 1.2% |
-| NPL Ratio | 0.8% |
+| P/E | 32.5x |
+| P/B | 48.1x |
+| ROE | 157% |
+| Dividend Yield | 0.5% |
+| Gross Margin | 46.2% |
 
 ---
 
@@ -306,11 +306,11 @@ _shape: 20 rows × 4 cols_
 
 | Key | Value |
 | --- | --- |
-| Symbol | VCB |
-| Sector | Banking |
-| Market Cap | $12.3B |
-| Float | 74.2% |
-| Dividend Yield | 1.2% |
+| Symbol | AAPL |
+| Sector | Technology |
+| Market Cap | $3.4T |
+| Float | 99.6% |
+| Dividend Yield | 0.5% |
 
 ## Built-in Charts
 
