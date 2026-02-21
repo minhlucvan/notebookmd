@@ -489,6 +489,18 @@ n.write(
 # ─────────────────────────────────────────────────────────────
 n.section("Launch Timeline")
 
+n.write("**Build in Public (Weeks -6 to -2): Audience Priming**")
+n.write(
+    "Based on Will McGugan's Rich strategy, start sharing progress publicly before the official launch:\n\n"
+    "- Post progress screenshots on X/Twitter as you build features\n"
+    "- Contribute genuinely to r/Python and r/datascience discussions (don't just self-promote)\n"
+    "- Share early on r/coolgithubprojects and r/opensource to accumulate 30-40 initial stars\n"
+    "- The 30-40 star threshold is critical: reaching this in 1-2 hours after a Reddit post "
+    "significantly increases chances of hitting GitHub Trending\n"
+    "- If your entire Reddit history is self-promotion, you will be downvoted — spend 2-3 weeks "
+    "contributing to discussions before launching"
+)
+
 n.write("**Pre-Launch (Week -1): Preparation**")
 n.table(
     pd.DataFrame(
@@ -589,21 +601,85 @@ n.write(
     "- **Follow-up content.** Post use cases and tips over the following week"
 )
 
-n.subheader("Examples of Successful Similar Launches")
+n.subheader("Case Studies: Successful Similar Launches")
+
 n.write(
-    "These Python/dev-tool launches demonstrate patterns worth emulating:\n\n"
-    "- **Rich (Python)** — Terminal formatting library. Launched with beautiful screenshots showing "
-    "before/after terminal output. The visual impact drove massive sharing.\n"
-    "- **FastAPI** — Positioned against Flask/Django with a clear comparison table and benchmark numbers. "
-    "Technical credibility + clear differentiation.\n"
-    "- **Pydantic** — Grew through genuine developer word-of-mouth. Tutorial content on Dev.to and "
-    "Medium drove sustained adoption.\n"
-    "- **Typer** — Same author as FastAPI. Leveraged existing community trust. Launch posts "
-    "referenced the familiar FastAPI API design.\n"
-    "- **Marimo** — Reactive notebook alternative. Launched with a compelling \"notebooks are broken\" "
-    "narrative and live demo. Strong HN reception.\n"
-    "- **Polars** — DataFrame library. Launched with benchmark comparisons against pandas. "
-    "Performance claims backed by reproducible benchmarks drove technical credibility."
+    "These Python/dev-tool launches demonstrate patterns directly applicable to notebookmd."
+)
+
+n.table(
+    pd.DataFrame(
+        [
+            ["Rich (Will McGugan)", "49,000+ stars", "362 pts on HN", "Visual GIFs of terminal output"],
+            ["Marimo", "10,000+ stars", "448 pts, 106 comments on HN", "\"Notebooks are broken\" narrative"],
+            ["MarkItDown (Microsoft)", "86,000+ stars", "Top of HN", "Universal need + simple API"],
+            ["FastAPI", "80,000+ stars", "Top of HN", "Comparison table vs Flask/Django"],
+            ["Cursor", "PH Product of Year '24", "5 PH launches", "Iterated with multiple launches"],
+            ["Polars", "35,000+ stars", "Top of HN", "Reproducible benchmark comparisons"],
+        ],
+        columns=["Project", "GitHub Stars", "Community Reception", "Key Tactic"],
+    ),
+    name="Comparable Launch Examples",
+)
+
+n.write(
+    "**Rich by Will McGugan** — The gold standard for Python library launches. "
+    "Will posted to r/Python with a GIF demo, stayed in comments answering every question, "
+    "and grew from zero to 49,000+ stars. His key insight: *\"The sweet-spot is closer to "
+    "early than finished\"* — launch when you have a core feature and a decent README. "
+    "Rich's inherently visual nature (formatted terminal output) drove massive sharing. "
+    "notebookmd can replicate this with before/after screenshots of raw vs structured Markdown output.\n\n"
+    "**Marimo** — The most directly comparable launch. A Python notebook tool positioned as a "
+    "better alternative to Jupyter. Its Show HN post earned 448 points and 106 comments because "
+    "it solved universally recognized pain points (Jupyter's hidden state, unreproducible execution, "
+    "JSON file format that breaks git). The title was crystal clear: *\"Marimo — an open-source reactive "
+    "notebook for Python.\"* They launched multiple times (5+ Show HN posts over 2024-2025), each "
+    "building on the last (WASM version, VS Code extension, cloud workspace).\n\n"
+    "**MarkItDown by Microsoft** — A document-to-Markdown converter that reached 86,000+ stars. "
+    "Relevant because it occupies the same Python + Markdown generation space. Success came from "
+    "solving a universal need with a dead-simple API.\n\n"
+    "**Key takeaway for notebookmd:** Frame against a known tool (\"Streamlit-like API, but outputs "
+    "Markdown\"), emphasize zero dependencies (HN loves minimal tools), target the AI agent use case "
+    "(hottest trend in 2025-2026), and invest heavily in visual proof (GIF of code → rendered output)."
+)
+
+n.subheader("The Universal Formula Across Platforms")
+n.write(
+    "Analyzing all successful launches reveals 6 patterns that appear everywhere:\n\n"
+    "1. **Solve a recognized pain point** — Every viral launch addresses a problem people already have. "
+    "The problem should be explainable in one sentence.\n"
+    "2. **Crystal-clear positioning in one line** — \"An open-source reactive notebook for Python\" (Marimo), "
+    "\"Python lib for rich text, markdown, tables in the terminal\" (Rich)\n"
+    "3. **Visual proof is the highest-leverage investment** — Every successful launch featured a GIF or screenshot. "
+    "McGugan explicitly credits Rich's visual nature as a key factor.\n"
+    "4. **Ship early, not perfect** — Early community feedback shapes the product. Waiting for feature-complete "
+    "means missing the window for building interest.\n"
+    "5. **Engage relentlessly on launch day** — Respond to every comment within 30 minutes. Clear your calendar. "
+    "Active participation increases Product Hunt traffic by 60%.\n"
+    "6. **Relaunch with updates** — Marimo did 5+ Show HN posts. Cursor did 5 Product Hunt launches. Each one "
+    "builds on accumulated credibility."
+)
+
+n.subheader("Platform Conversion Comparison")
+n.info(
+    "Research shows HN converts better than Product Hunt for developer tools. "
+    "One analysis found: HN yielded #2 on the front page, 107 points, 50+ stars, and 100+ installs. "
+    "Product Hunt yielded #14 of the day, 193 votes, but only ~30 installs. "
+    "Prioritize HN for a developer tool like notebookmd."
+)
+
+n.subheader("Optimal Timing by Platform")
+n.table(
+    pd.DataFrame(
+        [
+            ["Hacker News (Show HN)", "Sun or Tue-Thu", "6 AM UTC / 8 AM EST", "Weekends = less competition"],
+            ["Reddit (r/Python)", "Tue-Thu", "8-10 AM EST", "US business hours; use 'I Made This' flair"],
+            ["Product Hunt", "Tue-Thu or Sun", "12:01 AM PST", "Full 24-hour cycle; Sun = easier to win"],
+            ["X/Twitter", "Weekdays", "Mid-day EST", "Align with US dev audiences"],
+        ],
+        columns=["Platform", "Best Day", "Best Time", "Notes"],
+    ),
+    name="Optimal Posting Times",
 )
 
 # ─────────────────────────────────────────────────────────────
@@ -752,6 +828,34 @@ n.write(
     "4. Identify and reach out to 5-10 early supporters\n"
     "5. Choose launch date (Tuesday or Wednesday, avoid major tech news days)\n"
     "6. Execute pre-launch checklist starting 7 days before"
+)
+
+# ─────────────────────────────────────────────────────────────
+# References
+# ─────────────────────────────────────────────────────────────
+n.section("References & Further Reading")
+
+n.write(
+    "Research sources used to compile this launch plan:\n\n"
+    "**Launch strategy guides:**\n"
+    "- Will McGugan: [Promoting Your Open Source Project](https://www.willmcgugan.com/blog/tech/post/promoting-your-open-source-project-or-how-to-get-your-first-1k-github-stars/) — How Rich went from 0 to 1K+ stars\n"
+    "- Markepear: [How to Launch a Dev Tool on Hacker News](https://www.markepear.dev/blog/dev-tool-hacker-news-launch) — Deep tactical HN guide\n"
+    "- Product Hunt: [Preparing for Launch](https://www.producthunt.com/launch/preparing-for-launch) — Official launch guidance\n"
+    "- Stackfix: [Product Hunt Launch Guide](https://www.stackfix.com/blog/startup-advice/product-hunt-launch-guide)\n"
+    "- freeCodeCamp: [How We Got Trending on GitHub in 48 Hours](https://www.freecodecamp.org/news/how-we-got-a-2-year-old-repo-trending-on-github-in-just-48-hours-12151039d78b/)\n\n"
+    "**Comparable launches:**\n"
+    "- Marimo Show HN post: [448 points, 106 comments](https://news.ycombinator.com/item?id=38971966)\n"
+    "- Rich Show HN post: [362 points](https://bestofshowhn.com/search?q=python) — via Best of Show HN\n"
+    "- Best of Show HN 2024-2025: [bestofshowhn.com](https://bestofshowhn.com/2025)\n"
+    "- Product Hunt Developer Tools: [producthunt.com/topics/developer-tools](https://www.producthunt.com/topics/developer-tools)\n\n"
+    "**Timing research:**\n"
+    "- [Best time to post on HN](https://www.indiehackers.com/post/best-time-to-post-to-hacker-news-b52bece549) — Indie Hackers analysis\n"
+    "- [Best time for Show HN](https://www.myriade.ai/blogs/when-is-it-the-best-time-to-post-on-show-hn) — Myriade analysis\n"
+    "- [chanind HN timing analysis](https://chanind.github.io/2019/05/07/best-time-to-submit-to-hacker-news.html)\n\n"
+    "**Content creation:**\n"
+    "- Build Solo: [Twitter Thread Template](https://buildsolo.io/twitter-thread-template/)\n"
+    "- [awesome-readme on GitHub](https://github.com/matiassingers/awesome-readme) — README best practices\n"
+    "- HN: [Show HN Guidelines](https://news.ycombinator.com/showhn.html)"
 )
 
 # Save
