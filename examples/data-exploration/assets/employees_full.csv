@@ -1,0 +1,21 @@
+emp_id,name,department,title,salary,hire_date,performance_score,years_experience,city,remote
+E001,Alice Chen,Engineering,Senior Engineer,135000,2021-03-15,4.5,8,San Francisco,yes
+E002,Bob Martinez,Engineering,Staff Engineer,165000,2019-07-01,4.8,12,San Francisco,no
+E003,Charlie Kim,Engineering,Engineer,105000,2023-01-10,3.9,3,Austin,yes
+E004,Diana Patel,Engineering,Senior Engineer,140000,2020-11-20,4.3,7,New York,yes
+E005,Eve Johnson,Engineering,Tech Lead,175000,2018-05-12,4.7,14,San Francisco,no
+E006,Frank Liu,Product,Product Manager,130000,2022-02-28,4.1,5,New York,yes
+E007,Grace Brown,Product,Senior PM,155000,2019-09-15,4.6,10,Austin,no
+E008,Hank Wilson,Design,UI Designer,95000,2023-06-01,3.7,2,Austin,yes
+E009,Irene Davis,Design,Senior Designer,120000,2021-01-20,4.4,6,San Francisco,no
+E010,Jack Taylor,Design,Design Lead,145000,2020-04-10,4.5,9,New York,no
+E011,Karen White,Sales,Account Executive,90000,2022-08-15,4.0,4,Chicago,yes
+E012,Leo Adams,Sales,Senior AE,115000,2020-06-01,4.3,7,Chicago,no
+E013,Maria Garcia,Sales,Sales Director,160000,2018-11-01,4.8,15,New York,no
+E014,Nathan Clark,Marketing,Marketing Manager,110000,2021-07-20,3.8,5,Austin,yes
+E015,Olivia Moore,Marketing,Content Lead,100000,2022-03-10,4.2,4,San Francisco,yes
+E016,Pete Robinson,HR,HR Manager,105000,2020-09-01,4.1,6,Chicago,no
+E017,Quinn Harris,HR,Recruiter,80000,2023-04-15,3.6,2,Austin,yes
+E018,Rachel Lee,Finance,Financial Analyst,95000,2022-11-01,4.0,3,New York,yes
+E019,Sam Walker,Finance,Finance Director,155000,2019-01-15,4.7,11,New York,no
+E020,Tina Hall,Engineering,Engineer,110000,2022-06-01,4.1,4,Chicago,yes
