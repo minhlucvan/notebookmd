@@ -331,6 +331,101 @@ This means notebookmd analytics can be:
 
 ---
 
+## Detailed Platform Mappings
+
+### Metabase Mapping (exact API correspondence)
+
+Every notebookmd concept maps directly to Metabase's API objects:
+
+| notebookmd | Metabase API | JSON path |
+|------------|-------------|-----------|
+| `Entity` | Table | `GET /api/table/:id` |
+| `Dimension` | Field | `GET /api/field/:id` — `base_type`, `semantic_type` |
+| `Dimension(type="time")` | Field with `base_type: "type/DateTime"` | temporal bucketing via `{"temporal-unit": "month"}` |
+| `Dimension(type="string")` | Field with `base_type: "type/Text"` | `semantic_type: "type/Category"` |
+| `Measure(type="sum")` | MBQL aggregation | `["sum", ["field", <id>, null]]` |
+| `Measure(type="count")` | MBQL aggregation | `["count"]` |
+| `Measure(type="avg")` | MBQL aggregation | `["avg", ["field", <id>, null]]` |
+| `Measure(filters=[...])` | MBQL `count-where` / `sum-where` | `["count-where", ["=", ["field", <id>], "value"]]` |
+| `Relationship` | Foreign key | `fk_target_field_id` on Field, MBQL `joins` |
+| `Dashboard` | Dashboard | `POST /api/dashboard` |
+| `tile()` | DashCard + Card | Card = question, DashCard = placement + size |
+| `filter()` | Dashboard parameter | `parameters[]` with type like `"date/all-options"` |
+| `tile(type="metric")` | Card with `display: "scalar"` or `"smartscalar"` | `visualization_settings.scalar.*` |
+| `tile(type="line_chart")` | Card with `display: "line"` | breakout with `temporal-unit` |
+| `tile(type="bar_chart")` | Card with `display: "bar"` | breakout on categorical field |
+| `tile(type="table")` | Card with `display: "table"` | `visualization_settings.table.*` |
+| `section()` | Text DashCard | `card_id: null`, `visualization_settings.text: "## Title"` |
+
+**Import example — what actually happens:**
+
+```python
+dash = from_metabase(url="https://mb.company.com", api_key="mb_xxx", dashboard_id=42)
+```
+
+Under the hood:
+1. `GET /api/dashboard/42` → get dashboard with dashcards
+2. For each dashcard, `GET /api/card/:card_id` → get the question definition
+3. Parse `dataset_query.query` → extract `source-table`, `aggregation`, `breakout`, `filter`, `joins`
+4. `GET /api/database/:id/metadata` → get all tables and fields
+5. Map MBQL `["sum", ["field", 10, null]]` → `Measure("total", type="sum", sql="amount")`
+6. Map `breakout: [["field", 7, {"temporal-unit": "month"}]]` → `by="orders.date", granularity="monthly"`
+7. Map `display: "line"` → `type="line_chart"`
+8. Map `parameters[]` → `dash.filter()`
+9. Map dashcard `size_x/size_y/col/row` → tile ordering in sections
+
+**Export example — what actually happens:**
+
+```python
+to_metabase(dash, url="https://mb.company.com", api_key="mb_xxx")
+```
+
+Under the hood:
+1. Match entities to Metabase tables via `GET /api/database/:id/metadata`
+2. For each tile, `POST /api/card` → create a question with MBQL query
+3. `POST /api/dashboard` → create dashboard with parameters
+4. `PUT /api/dashboard/:id/cards` → place dashcards with layout positions
+
+### Looker / LookML Mapping
+
+| notebookmd | LookML |
+|------------|--------|
+| `Entity("orders", source=...)` | `view: orders { sql_table_name: public.orders ;; }` |
+| `Dimension("status", type="string")` | `dimension: status { type: string  sql: ${TABLE}.status ;; }` |
+| `Dimension("date", type="time")` | `dimension_group: date { type: time  timeframes: [date, week, month, year] }` |
+| `Measure("revenue", type="sum", sql="amount")` | `measure: revenue { type: sum  sql: ${amount} ;; }` |
+| `Measure("count", type="count")` | `measure: count { type: count }` |
+| `Measure(..., filters=[("status","=","completed")])` | `measure: x { type: count  filters: [status: "completed"] }` |
+| `Relationship("orders","customers", on=(...), type="many_to_one")` | `join: customers { relationship: many_to_one  sql_on: ${orders.customer_id} = ${customers.id} ;; }` |
+| `Dashboard` + tiles | `dashboard: x { elements: [ { explore: orders  measures: [orders.revenue]  dimensions: [...] } ] }` |
+| `filter("date_range", ...)` | `filters: [ { name: date_range  type: date_filter  field: orders.date } ]` |
+
+### Cube Mapping
+
+| notebookmd | Cube schema |
+|------------|-------------|
+| `Entity("orders", source=...)` | `cube('Orders', { sql_table: 'public.orders' })` |
+| `Dimension("status", type="string")` | `dimensions: { status: { sql: 'status', type: 'string' } }` |
+| `Dimension("date", type="time")` | `dimensions: { date: { sql: 'date', type: 'time' } }` |
+| `Measure("revenue", type="sum", sql="amount")` | `measures: { revenue: { sql: 'amount', type: 'sum' } }` |
+| `Relationship(...)` | `joins: { Customers: { relationship: 'many_to_one', sql: '...' } }` |
+| `dash.query(measures=[...], dimensions=[...])` | `POST /cubejs-api/v1/load { "measures": [...], "dimensions": [...] }` |
+
+### PowerBI Mapping
+
+| notebookmd | PowerBI semantic model |
+|------------|----------------------|
+| `Entity("orders", source=...)` | Table "Orders" in `model.bim` |
+| `Dimension("status", type="string")` | Column `Orders[Status]` |
+| `Dimension("date", type="time")` | Date table relationship + `Orders[Date]` |
+| `Measure("revenue", type="sum", sql="amount")` | DAX: `Total Revenue = SUM(Orders[Amount])` |
+| `Measure("aov", sql="revenue / count")` | DAX: `AOV = DIVIDE([Total Revenue], [Order Count])` |
+| `Relationship(type="many_to_one")` | Relationship with `crossFilteringBehavior: "oneDirection"` |
+| `filter()` | Slicer visual on report page |
+| `tile(compare="previous_period")` | DAX: `CALCULATE([Revenue], SAMEPERIODLASTYEAR('Date'[Date]))` |
+
+---
+
 ## End-to-End Example
 
 ```python
