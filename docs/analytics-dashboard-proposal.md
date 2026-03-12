@@ -1,368 +1,414 @@
-# notebookmd Analytics Dashboard — Design Proposal
+# Analytics Dashboard for AI Agents — Design Proposal
 
-**Code-first representation layer for agent-driven analytics.**
+**Code-first analytics platform. Powered by Markdown.**
 
-> Agent writes Python → notebookmd renders Markdown → Analytics happens.
-
----
-
-## The Core Idea
-
-notebookmd is a **representation layer**. Not a BI tool. Not a query engine. Not a
-dashboard server.
-
-It's the thing that turns an AI agent's analysis into a structured, readable, portable
-document — instantly, with zero configuration, using pure Python.
-
-```
-Agent analyzes data ──► n.metric(), n.table(), n.chart() ──► report.md
-```
-
-That's it. That's the product.
-
-### Why This Matters Now
-
-Every AI agent — Claude, GPT, Gemini, open-source models — can already:
-- Read CSVs, query databases, call APIs
-- Do statistical analysis, find patterns, draw conclusions
-- Write Python code fluently
-
-What they **cannot** do is produce structured, presentation-ready output. They `print()`.
-They dump raw text. They generate one-off Markdown by hand, inconsistently, every time.
-
-notebookmd gives agents a **standard representation vocabulary**:
-
-```python
-n.metric("Revenue", "$4.2M", delta="+18%")    # KPI card
-n.table(df, name="Top Products")               # formatted table
-n.line_chart(df, x="date", y="value")           # chart image
-n.bar_chart(df, x="region", y="sales")          # bar chart
-n.badge("HEALTHY", style="success")             # status pill
-n.stat("P/E Ratio", "24.5x")                    # inline stat
-```
-
-One `pip install`, one `n = nb("report.md")`, and the agent has a full analytics
-rendering toolkit. No server. No config. No build step.
+> Connect data sources → Define metrics → Join & transform → Visualize as Markdown.
+> Like Metabase or PowerBI, but code-first, agent-native, and Markdown-output.
 
 ---
 
-## What "Code-First Representation Layer" Means
+## The Vision
 
-### Code-First
+A **full analytics platform** where AI agents (or humans) define data sources, metrics,
+relationships, and transformations in Python — and the output is clean, portable Markdown.
 
-The report is defined entirely in Python. Not YAML. Not SQL. Not drag-and-drop.
-An agent writes code; the code produces the report. This is how agents naturally work —
-sequentially, imperatively, one function call at a time.
+notebookmd (the rendering library) is just one piece underneath. The dashboard layer sits
+**above** it and thinks about the real analytics problems:
 
-```python
-# This IS the dashboard. No config file. No template language. Just Python.
-n = nb("output/weekly.md", title="Weekly Dashboard")
+- Where does the data live?
+- What are the key metrics and how are they calculated?
+- How do tables relate to each other?
+- What dimensions can you slice by?
+- How has a metric changed over time?
 
-n.section("Revenue")
-n.metric_row([
-    {"label": "This Week", "value": "$142K", "delta": "+12%"},
-    {"label": "MTD", "value": "$580K", "delta": "+8%"},
-    {"label": "Pipeline", "value": "$1.2M"},
-])
+Visualization is the **last step**, not the first.
 
-n.section("Trend")
-n.line_chart(df, x="date", y="revenue", title="Daily Revenue")
-
-n.section("Breakdown")
-n.table(by_region, name="Revenue by Region")
-n.bar_chart(by_region, x="region", y="revenue")
-
-n.save()
 ```
-
-### Representation Layer
-
-notebookmd doesn't query data. It doesn't store data. It **represents** data.
-
-The agent is responsible for getting the data (from a database, CSV, API, wherever).
-notebookmd is responsible for turning that data into a clean, structured document.
-
-This separation is intentional:
-- Agents are already good at getting and analyzing data
-- What they lack is a consistent way to **present** it
-- notebookmd provides that presentation vocabulary
-
-### Instantly Enables Agent Analytics
-
-No setup required. An agent can go from "zero" to "full analytics dashboard" in one script:
-
-```python
-from notebookmd import nb
-import pandas as pd
-
-df = pd.read_csv("sales.csv")
-
-n = nb("dashboard.md", title="Sales Dashboard")
-n.metric("Total Revenue", f"${df['revenue'].sum():,.0f}")
-n.metric("Orders", f"{len(df):,}")
-n.line_chart(df, x="date", y="revenue", title="Revenue Trend")
-n.table(df.head(10), name="Recent Orders")
-n.save()
+┌─────────────────────────────────────────────────────┐
+│            Analytics Dashboard (NEW)                 │
+│                                                     │
+│  Sources → Metrics → Joins → Transforms → Insights  │
+│                                                     │
+│         ┌───────────────────────────┐               │
+│         │  notebookmd (rendering)   │  ◄── existing │
+│         │  n.metric, n.table, etc.  │               │
+│         └───────────────────────────┘               │
+│                      │                              │
+│                      ▼                              │
+│               report.md + assets/                   │
+└─────────────────────────────────────────────────────┘
 ```
-
-That's a complete dashboard. 8 lines. Works immediately. The agent didn't need to learn
-a framework, configure a server, or understand a template language.
 
 ---
 
-## The Agent → Markdown → Analytics Pipeline
+## What the Platform Does
 
-### How It Works Today
+### 1. Data Sources — "Where does the data live?"
 
-```
-┌──────────┐         ┌──────────┐         ┌──────────────────┐
-│ AI Agent │──code──► │notebookmd│──write──►│ report.md        │
-│          │         │          │         │ + assets/         │
-│ (Claude, │         │ n.metric │         │   chart_1.png    │
-│  GPT,    │         │ n.table  │         │   data.csv       │
-│  local)  │         │ n.chart  │         │                  │
-└──────────┘         └──────────┘         └──────────────────┘
-                                                   │
-                                          ┌────────┴────────┐
-                                          │                 │
-                                     Humans read it    Agents read it
-                                     (GitHub, email,   (downstream
-                                      Slack, web)       analysis)
+Connect to anything. The platform knows about your data, not just individual DataFrames.
+
+```python
+from notebookmd.analytics import Dashboard
+
+dash = Dashboard("output/weekly.md", title="Weekly Business Review")
+
+# Register data sources — the dashboard knows about all of them
+dash.source("orders", "data/orders.csv")
+dash.source("customers", "postgresql://host/db", table="customers")
+dash.source("products", "data/products.parquet")
+dash.source("web", "https://api.analytics.com/v1/events", format="json")
 ```
 
-### What Makes Markdown the Right Output
+Sources are **first-class objects**. The dashboard tracks them, profiles them, and
+understands their schemas. An agent can ask: "what sources do I have? what columns?
+what types? how fresh is the data?"
 
-- **Universal**: renders on GitHub, VS Code, Slack, email, web, PDF
-- **Git-friendly**: `git diff` shows exactly what changed between runs
-- **LLM-native**: 4-5x more token-efficient than HTML for agent consumption
-- **Portable**: no server, no viewer app, no proprietary format
-- **Composable**: sections, tables, images, code blocks — all plain text
+```python
+# Agent discovers what's available
+for src in dash.sources:
+    print(src.name, src.columns, src.row_count, src.freshness)
 
-### The Dual-Audience Advantage
+# Output:
+# orders    [date, customer_id, product_id, quantity, revenue]  145,230  2026-03-12
+# customers [id, name, segment, region, signup_date]             12,891  2026-03-12
+# products  [id, name, category, price, cost]                      487  2026-03-01
+# web       [timestamp, event, user_id, page, duration]       1.2M     2026-03-12
+```
 
-The same `.md` file serves two audiences:
+### 2. Metrics — "What are we measuring?"
 
-1. **Humans** read the rendered Markdown (tables, charts, metrics)
-2. **Agents** parse the raw Markdown (structured, predictable format)
+Metrics are defined once, reused everywhere. Not just formatted values — actual
+calculations with formulas, formats, and business context.
 
-No other format does both well. HTML is verbose for agents. JSON is unreadable for humans.
-PDF is opaque to both. Markdown is the sweet spot.
+```python
+# Define metrics as first-class objects
+dash.metric("revenue",
+    expr="SUM(orders.revenue)",
+    format="$,.0f",
+    description="Total gross revenue from all orders")
+
+dash.metric("aov",
+    expr="SUM(orders.revenue) / COUNT(orders.*)",
+    format="$,.2f",
+    description="Average order value")
+
+dash.metric("customers",
+    expr="COUNT(DISTINCT orders.customer_id)",
+    format=",d",
+    description="Unique paying customers")
+
+dash.metric("conversion_rate",
+    expr="COUNT(DISTINCT orders.customer_id) / COUNT(DISTINCT web.user_id)",
+    format=".1%",
+    description="Visitor to customer conversion rate",
+    sources=["orders", "web"])  # cross-source metric
+```
+
+Metrics know:
+- **How to compute themselves** (expression tied to source columns)
+- **How to format** (currency, percentage, integer, etc.)
+- **What they mean** (description for agents and humans)
+- **Which sources they need** (dependency tracking)
+- **How to compare** (period-over-period, vs target, vs benchmark)
+
+### 3. Relationships & Joins — "How does the data connect?"
+
+The dashboard understands how tables relate. Agents don't manually write JOIN clauses.
+
+```python
+# Define relationships between sources
+dash.join("orders", "customers", on="customer_id")
+dash.join("orders", "products", on="product_id")
+```
+
+Now the platform can automatically:
+- Slice revenue by customer segment (orders → customers)
+- Slice revenue by product category (orders → products)
+- Compute cross-source metrics without manual SQL
+
+```python
+# Agent asks for revenue by segment — the platform handles the join
+by_segment = dash.slice("revenue", by="customers.segment")
+# Returns DataFrame with segment, revenue — join handled automatically
+
+# Multi-dimensional slice
+by_segment_category = dash.slice("revenue", by=["customers.segment", "products.category"])
+```
+
+### 4. Dimensions & Slicing — "How do we break it down?"
+
+Dimensions are the axes you slice metrics along. The platform auto-discovers them
+and lets agents explore freely.
+
+```python
+# Auto-discovered dimensions
+dash.dimensions()
+# → ["orders.date", "customers.segment", "customers.region",
+#    "products.category", "products.name"]
+
+# Slice any metric by any dimension
+revenue_by_date = dash.slice("revenue", by="orders.date", period="weekly")
+revenue_by_region = dash.slice("revenue", by="customers.region")
+revenue_trend = dash.trend("revenue", over="orders.date", period="daily", last=30)
+
+# Compare periods
+dash.compare("revenue", current="2026-03", previous="2026-02")
+# → {current: $1.2M, previous: $1.05M, change: +$150K, pct: +14.3%}
+```
+
+### 5. Transforms & Computed Fields — "Derive new data"
+
+Add computed columns, filters, and aggregations without touching the raw data.
+
+```python
+# Computed fields
+dash.compute("orders", "profit", expr="revenue - (products.cost * quantity)")
+dash.compute("orders", "margin", expr="profit / revenue", format=".1%")
+
+# Filters
+enterprise = dash.filter("customers.segment == 'Enterprise'")
+recent = dash.filter("orders.date >= '2026-03-01'")
+
+# Filtered metrics
+enterprise_revenue = dash.slice("revenue", by="orders.date", where=enterprise)
+```
+
+### 6. Render — "Show me the dashboard"
+
+After all the analytical thinking, visualization is the final step.
+The platform uses notebookmd underneath but the agent thinks in metrics and dimensions,
+not in widget calls.
+
+```python
+# High-level rendering — the platform decides the best visualization
+dash.show("revenue")                          # → metric card with delta
+dash.show("revenue", by="orders.date")        # → line chart (time series)
+dash.show("revenue", by="customers.region")   # → bar chart (categorical)
+dash.show("revenue", by=["region", "date"])   # → multi-line chart
+
+# Or explicit control
+dash.card("revenue", "aov", "customers")      # → metric row
+dash.timeseries("revenue", period="daily")    # → trend chart + table
+dash.breakdown("revenue", by="segment")       # → bar chart + table
+dash.comparison("revenue", "2026-03", "2026-02")  # → delta table
+
+# Save the full dashboard
+dash.save()
+```
+
+The `.show()` method is smart — it picks the right visualization based on the metric
+type and dimension. Time dimension → line chart. Categorical → bar chart. Single value → metric card.
 
 ---
 
-## What We Build Next: The Dashboard Layer
-
-notebookmd already has the widget library (40+ methods). The next step is making it trivially
-easy for agents to produce **recurring, data-connected dashboards**.
-
-### 1. Data Source Wrappers
-
-Thin convenience layer — not a query engine, just a consistent interface:
+## End-to-End Example
 
 ```python
-from notebookmd.sources import connect
+from notebookmd.analytics import Dashboard
 
-src = connect("data/sales.csv")        # CSV (zero deps)
-src = connect("sqlite:///app.db")       # SQLite (zero deps)
-src = connect(df)                       # pandas DataFrame
+# === SETUP: Define the analytical model ===
 
-# Schema discovery — agents read this to understand the data
-print(src.describe())
-# → "sales.csv: 145,230 rows, 8 columns [date, product, region, revenue, ...]"
+dash = Dashboard("output/weekly.md", title="Weekly Business Review")
 
-df = src.query("SELECT region, SUM(revenue) FROM data GROUP BY region")
+# Sources
+dash.source("orders", "data/orders.csv")
+dash.source("customers", "data/customers.csv")
+dash.source("products", "data/products.csv")
+
+# Relationships
+dash.join("orders", "customers", on="customer_id")
+dash.join("orders", "products", on="product_id")
+
+# Metrics
+dash.metric("revenue", expr="SUM(orders.revenue)", format="$,.0f")
+dash.metric("orders", expr="COUNT(orders.*)", format=",d")
+dash.metric("aov", expr="revenue / orders", format="$,.2f")
+dash.metric("margin", expr="SUM(orders.revenue - products.cost * orders.quantity) / SUM(orders.revenue)", format=".1%")
+
+# === RENDER: Build the dashboard ===
+
+dash.section("Key Metrics")
+dash.card("revenue", "orders", "aov", "margin", compare="previous_week")
+
+dash.section("Revenue Trend")
+dash.timeseries("revenue", period="daily", last=30)
+
+dash.section("Segment Analysis")
+dash.breakdown("revenue", by="customers.segment")
+dash.breakdown("revenue", by="products.category", top=10)
+
+dash.section("Regional Performance")
+dash.breakdown("revenue", by="customers.region", compare="previous_week")
+
+dash.section("Data Health")
+dash.freshness()   # Shows last-updated for each source
+dash.coverage()    # Shows null rates, data completeness
+
+dash.save()
 ```
 
-The key insight: agents don't need 200 database connectors. They need a **describe → query → render** loop. The `connect()` wrapper standardizes that loop.
-
-### 2. Data Profiling for Agents
-
-Auto-generate structured hints that agents can use to decide what to visualize:
-
-```python
-from notebookmd.discovery import suggest
-
-hints = suggest(src)
-# {
-#   "kpi_candidates": ["revenue", "order_count"],
-#   "time_column": "order_date",
-#   "category_columns": ["region", "product_type"],
-#   "suggested_charts": [
-#     {"type": "line_chart", "x": "order_date", "y": "revenue"},
-#     {"type": "bar_chart", "x": "region", "y": "revenue"},
-#   ],
-# }
-```
-
-This turns any dataset into dashboard-ready guidance. The agent reads the hints,
-writes the rendering code, notebookmd produces the report.
-
-### 3. Dashboard Templates
-
-Pre-built blueprints for common dashboard patterns:
-
-```python
-from notebookmd.dashboard import KPIDashboard
-
-KPIDashboard(
-    source=src,
-    metrics=["revenue", "orders", "avg_order_value"],
-    time_column="order_date",
-    group_by="region",
-).render(n)
-```
-
-| Template | What It Renders |
-|----------|----------------|
-| `KPIDashboard` | Metric cards + sparklines + period-over-period change |
-| `TimeSeriesDashboard` | Line charts + moving averages + seasonality |
-| `ComparisonDashboard` | Side-by-side metrics + statistical significance |
-| `DataQualityDashboard` | Null rates + type checks + freshness + anomalies |
-| `FunnelDashboard` | Stage metrics + drop-off rates + conversion charts |
-
-Templates are just Python classes that call `n.metric()`, `n.table()`, `n.chart()`.
-Agents can use them as-is or as starting points for custom dashboards.
-
-### 4. Refresh & Diff
-
-Re-run a dashboard script, track what changed:
-
-```python
-from notebookmd.dashboard import refresh
-
-result = refresh("scripts/daily_kpis.py", output="output/daily_kpis.md")
-# result.changed → True
-# result.alerts → ["Revenue dropped 15% vs yesterday"]
-```
-
-```bash
-# CLI
-notebookmd run scripts/daily_kpis.py --refresh
-
-# Cron
-0 9 * * * notebookmd run scripts/daily_kpis.py --refresh --alert-webhook $SLACK_URL
-```
-
-Since output is Markdown, `git diff` is the natural change tracker:
-
-```diff
-- | **Revenue** | **$1.2M** | ▲ +12% |
-+ | **Revenue** | **$1.05M** | ▼ -5% |
-```
-
-### 5. Report Metadata
-
-Embed machine-readable context in every report:
-
-```markdown
-<!--
-notebookmd:dashboard
-source: sales.csv
-generated: 2026-03-12T09:00:00Z
-metrics: [total_revenue, avg_order_value, order_count]
-parameters:
-  date_range: "2026-03-01..2026-03-12"
--->
-```
-
-This enables:
-- **Downstream agents** parse the metadata to understand what the report covers
-- **Refresh scripts** know what to re-query
-- **Report indexes** auto-catalog dashboards across a project
+**Output**: A complete `weekly.md` with KPI cards, trend charts, breakdowns, comparisons —
+all from a single analytical model definition. No manual pandas. No manual SQL. No manual
+chart configuration.
 
 ---
 
-## End-to-End: What an Agent Actually Does
+## How This Differs from "Just Using notebookmd"
+
+| Concern | Raw notebookmd | Analytics Dashboard |
+|---------|:---:|:---:|
+| Data sources | Agent does `pd.read_csv()` manually | `dash.source()` — registered, tracked, profiled |
+| Metrics | Agent computes `df['revenue'].sum()` and formats manually | `dash.metric("revenue", expr=...)` — defined once, computed automatically |
+| Joins | Agent writes `pd.merge()` or SQL joins manually | `dash.join()` — relationships declared, joins automatic |
+| Slicing | Agent does `df.groupby()` manually | `dash.slice("revenue", by="segment")` — one call |
+| Period comparison | Agent computes current vs previous manually | `dash.compare("revenue", current, previous)` — built in |
+| Visualization | Agent calls `n.metric()`, `n.table()`, `n.chart()` directly | `dash.show("revenue", by="date")` — auto-picks the right chart |
+| Freshness | Not tracked | `dash.freshness()` — automatic |
+| Reusability | Copy-paste between reports | Metrics and sources defined once, reused across dashboards |
+
+The key difference: **raw notebookmd is a rendering library. The Analytics Dashboard is an
+analytical thinking framework** that happens to render to Markdown.
+
+---
+
+## The Analytical Model
+
+At the core is a declarative analytical model:
 
 ```python
-from notebookmd import nb
-import pandas as pd
+# The model — WHAT we're analyzing
+Sources:     orders, customers, products, web_events
+Joins:       orders ↔ customers (customer_id), orders ↔ products (product_id)
+Metrics:     revenue, aov, margin, customers, conversion_rate
+Dimensions:  date, segment, region, category
+Filters:     enterprise_only, recent_30d, high_value
 
-# 1. Agent gets data (however it wants — pandas, SQL, API, whatever)
-df = pd.read_csv("data/sales.csv")
-
-# 2. Agent analyzes
-total = df["revenue"].sum()
-by_region = df.groupby("region")["revenue"].sum().reset_index()
-trend = df.groupby("date")["revenue"].sum().reset_index()
-
-# 3. Agent renders with notebookmd
-n = nb("output/sales_dashboard.md", title="Sales Dashboard")
-
-n.section("Key Metrics")
-n.metric("Total Revenue", f"${total:,.0f}", delta="+12%")
-n.metric("Orders", f"{len(df):,}", delta="+5%")
-n.metric("AOV", f"${total/len(df):,.2f}")
-
-n.section("Revenue Trend")
-n.line_chart(trend, x="date", y="revenue", title="Daily Revenue")
-
-n.section("By Region")
-n.table(by_region, name="Revenue by Region")
-n.bar_chart(by_region, x="region", y="revenue")
-
-n.save()
-# → output/sales_dashboard.md (readable by humans and agents)
-# → output/assets/chart_1.png, chart_2.png
+# The dashboard — HOW we're presenting it
+Sections:    Key Metrics, Trends, Breakdowns, Comparisons, Data Health
 ```
 
-The agent doesn't learn a new paradigm. It writes Python. notebookmd handles the rest.
+This model is:
+- **Reusable** — same model, different dashboards (weekly summary vs deep dive)
+- **Composable** — mix sources and metrics freely
+- **Discoverable** — agents can introspect the model to decide what to analyze
+- **Portable** — the model definition is Python code, versionable in git
+
+### Agent Workflow
+
+An agent working with the Analytics Dashboard thinks at a higher level:
+
+```
+1. "What data sources are available?"     → dash.sources
+2. "What can I measure?"                  → dash.metrics
+3. "What dimensions can I slice by?"      → dash.dimensions()
+4. "How has revenue changed?"             → dash.trend("revenue")
+5. "What's driving the change?"           → dash.breakdown("revenue", by="segment")
+6. "Show me the dashboard."               → dash.save()
+```
+
+Compare this to raw notebookmd where the agent must manually:
+1. Load each CSV/database
+2. Write pandas code for every aggregation
+3. Format every number
+4. Choose every chart type
+5. Handle every join
+
+---
+
+## Architecture
+
+```
+notebookmd/
+├── analytics/                    # NEW: The analytics platform
+│   ├── __init__.py               # Dashboard class, public API
+│   ├── dashboard.py              # Dashboard: sources, metrics, joins, rendering
+│   ├── source.py                 # DataSource: connect, schema, query, profile
+│   ├── metric.py                 # MetricDef: expression, format, dependencies
+│   ├── join.py                   # JoinSpec: relationships between sources
+│   ├── slice.py                  # Slicer: groupby, filter, period comparison
+│   ├── suggest.py                # Auto-discovery: suggest metrics, charts, dimensions
+│   └── refresh.py                # Re-run + diff tracking
+├── core.py                       # Notebook class (existing — used by Dashboard internally)
+├── plugins/                      # Widget plugins (existing — used by Dashboard internally)
+│   ├── text.py, data.py, charts.py, analytics.py, ...
+└── ...
+```
+
+The `Dashboard` class owns a `Notebook` internally. It translates analytical operations
+(slice, trend, breakdown, compare) into notebookmd widget calls (metric, table, chart).
+The agent never touches `n.metric()` directly — it works at the analytics level.
 
 ---
 
 ## Implementation Plan
 
-### Phase 1: Data Sources
-- `DataSource` protocol (describe → query → render loop)
-- `CSVSource` (zero-dep), `SQLSource` (sqlite3 stdlib), `DataFrameSource`
-- `connect()` factory with auto-detection
-- `DashboardPlugin` with `n.connect()`, `n.source_status()`
+### Phase 1: Core Model
+- `Dashboard` class with `source()`, `metric()`, `join()`
+- `DataSource` with schema discovery, profiling, query
+- `MetricDef` with expression parsing and formatting
+- `JoinSpec` with automatic join resolution
+- Basic `show()` → delegates to notebookmd rendering
 
-### Phase 2: Discovery
-- `profiler.py` — column stats, type inference, distributions
-- `suggest.py` — AI-friendly chart/metric hints
-- `n.source_profile()` integration
+### Phase 2: Slicing & Comparison
+- `slice()` — groupby any dimension with automatic joins
+- `trend()` — time series with configurable period
+- `compare()` — period-over-period, segment-vs-segment
+- `breakdown()` — top-N categorical analysis
+- Smart chart selection based on metric + dimension type
 
-### Phase 3: Templates
-- `DashboardTemplate` base class
-- `KPIDashboard`, `TimeSeriesDashboard`, `ComparisonDashboard`
-- `n.auto_dashboard()` one-liner
+### Phase 3: Auto-Discovery
+- `suggest()` — auto-detect metrics, time columns, categories
+- `dash.auto()` — generate a complete dashboard from sources alone
+- `dimensions()` — enumerate all available slicing axes
+- `anomalies()` — flag statistical outliers
 
-### Phase 4: Operations
-- `refresh()` with metric diff tracking
-- `--refresh` CLI flag
-- `ReportIndex` for cross-report catalog
-- Alert webhooks
+### Phase 4: Templates & Operations
+- Pre-built dashboard templates (KPI, TimeSeries, Comparison, Funnel)
+- `refresh()` — re-run with metric diff tracking
+- `freshness()` / `coverage()` — data health widgets
+- CLI: `notebookmd run --refresh --alert-webhook`
+
+### Phase 5: Advanced
+- Computed fields and derived metrics
+- Cross-source metrics (metrics spanning multiple sources)
+- Parameterized dashboards (date range, region, segment as parameters)
+- Report index and cross-dashboard navigation
 
 ---
 
 ## Dependency Strategy
 
-Zero-dep core philosophy stays:
-
-| Feature | Core (zero deps) | Optional Extra |
+| Feature | Zero deps | Optional |
 |---------|:-:|:-:|
-| CSV source | yes | — |
-| SQLite source | yes | — |
-| DataFrame source | — | `[pandas]` |
-| Charts | — | `[plotting]` |
-| Full analytics | — | `[all]` |
+| Dashboard API, metric definitions, join specs | yes | — |
+| CSV source | yes (stdlib) | — |
+| SQLite source | yes (stdlib) | — |
+| Pandas source + transforms | — | `[pandas]` |
+| SQL databases | — | `[sql]` → `sqlalchemy` |
+| DuckDB (universal query) | — | `[duckdb]` |
+| Chart rendering | — | `[plotting]` |
+| Everything | — | `[all]` |
 
 ---
 
 ## The Positioning
 
-notebookmd is not a BI tool. It's not a query engine. It's not a dashboard server.
-
-It's the **code-first representation layer** that instantly gives any AI agent the ability
-to produce structured analytics output.
+This is not a rendering library. This is an **analytics platform**.
 
 ```
-Traditional BI:     Human → clicks UI → dashboard (locked in a browser)
-Agent analytics:    Agent → writes Python → notebookmd → .md report (portable, everywhere)
+Metabase:    GUI → click to explore → dashboard (browser-only)
+PowerBI:     GUI → drag and drop → dashboard (proprietary)
+Evidence:    SQL + Markdown → build step → static website
+Streamlit:   Python → live server → interactive app
+
+notebookmd:  Python → analytical model → Markdown report (portable, everywhere)
 ```
 
-Every agent framework (LangChain, CrewAI, Claude Code, custom agents) can use notebookmd
-today. No integration needed. Just `pip install notebookmd` and start calling `n.metric()`.
+What they all have in common: **data sources, metrics, joins, dimensions, slicing**.
+That's what analytics IS. The visualization is just the delivery format.
 
-**The agent already knows how to analyze data. notebookmd gives it a voice.**
+notebookmd's analytics layer speaks the same language as Metabase and PowerBI —
+sources, metrics, relationships, dimensions — but in Python code, for agents,
+outputting Markdown.
+
+**Code-first. Agent-native. Markdown-output. Full analytics.**
