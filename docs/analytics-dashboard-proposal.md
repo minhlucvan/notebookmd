@@ -1,317 +1,451 @@
 # Analytics Dashboard for AI Agents — Design Proposal
 
-**Code-first analytics platform. Powered by Markdown.**
+**Code-first analytics platform. Markdown-output. Mirrors BI platform concepts.**
 
-> Connect data sources → Define metrics → Join & transform → Visualize as Markdown.
-> Like Metabase or PowerBI, but code-first, agent-native, and Markdown-output.
+> Same data model as Metabase, Looker, PowerBI, Cube — but in Python, for agents,
+> outputting Markdown. Import from them. Export to them. Or use standalone.
 
 ---
 
-## The Vision
+## The Core Idea
 
-A **full analytics platform** where AI agents (or humans) define data sources, metrics,
-relationships, and transformations in Python — and the output is clean, portable Markdown.
+Every BI platform — Metabase, Looker, PowerBI, Cube — uses the same foundational concepts:
 
-notebookmd (the rendering library) is just one piece underneath. The dashboard layer sits
-**above** it and thinks about the real analytics problems:
+1. **Entities** (tables/views with semantic meaning)
+2. **Dimensions** (attributes you group and filter by)
+3. **Measures** (aggregations you compute)
+4. **Relationships** (how entities join together)
+5. **Queries** (select measures + dimensions → get results)
+6. **Dashboards** (tiles bound to queries + global filters)
 
-- Where does the data live?
-- What are the key metrics and how are they calculated?
-- How do tables relate to each other?
-- What dimensions can you slice by?
-- How has a metric changed over time?
-
-Visualization is the **last step**, not the first.
+We mirror these concepts exactly in Python. The result is a data model that agents can
+build programmatically, that maps 1:1 to existing BI platforms, and that renders to Markdown.
 
 ```
-┌─────────────────────────────────────────────────────┐
-│            Analytics Dashboard (NEW)                 │
-│                                                     │
-│  Sources → Metrics → Joins → Transforms → Insights  │
-│                                                     │
-│         ┌───────────────────────────┐               │
-│         │  notebookmd (rendering)   │  ◄── existing │
-│         │  n.metric, n.table, etc.  │               │
-│         └───────────────────────────┘               │
-│                      │                              │
-│                      ▼                              │
-│               report.md + assets/                   │
-└─────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                                                             │
+│   Metabase  ◄──────┐                                       │
+│   Looker    ◄──────┤   notebookmd.analytics                │
+│   PowerBI   ◄──────┤   (same concepts, Python API)         │
+│   Cube      ◄──────┘                                       │
+│                         │                                   │
+│                         ▼                                   │
+│                    Markdown report                          │
+│                    (.md + assets/)                          │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## What the Platform Does
+## The Universal BI Data Model (in Python)
 
-### 1. Data Sources — "Where does the data live?"
+### Concept Mapping
 
-Connect to anything. The platform knows about your data, not just individual DataFrames.
+| Concept | Looker | PowerBI | Cube | Metabase | **notebookmd** |
+|---------|--------|---------|------|----------|:-:|
+| Logical table | View | Table | Cube | Table | **Entity** |
+| Attribute | dimension | Column | dimension | Column | **Dimension** |
+| Aggregation | measure | DAX Measure | measure | Metric | **Measure** |
+| Table link | explore + join | Relationship | joins | FK | **Relationship** |
+| Query | Explore query | Visual query | /load API | Question | **Query** |
+| Dashboard | Dashboard + tiles | Report + visuals | (frontend) | Dashboard + cards | **Dashboard + Tiles** |
+| Filter | Dashboard filter | Slicer | filter member | Parameter | **Filter** |
+| Time handling | dimension_group | Date table + DAX | time dimension | Temporal bins | **TimeDimension** |
+
+### The Python API
 
 ```python
-from notebookmd.analytics import Dashboard
+from notebookmd.analytics import Dashboard, Entity, Dimension, Measure
 
-dash = Dashboard("output/weekly.md", title="Weekly Business Review")
+# === ENTITIES (like Looker views, PowerBI tables, Cube cubes) ===
 
-# Register data sources — the dashboard knows about all of them
-dash.source("orders", "data/orders.csv")
-dash.source("customers", "postgresql://host/db", table="customers")
-dash.source("products", "data/products.parquet")
-dash.source("web", "https://api.analytics.com/v1/events", format="json")
+orders = Entity(
+    name="orders",
+    source="data/orders.csv",                  # or "postgresql://...", table="orders"
+    dimensions=[
+        Dimension("order_id", type="number", primary_key=True),
+        Dimension("status", type="string"),
+        Dimension("order_date", type="time"),   # time dimension — auto-generates day/week/month/year
+        Dimension("customer_id", type="number"),
+        Dimension("product_id", type="number"),
+    ],
+    measures=[
+        Measure("revenue", type="sum", sql="amount", format="$,.0f"),
+        Measure("count", type="count"),
+        Measure("aov", type="number", sql="revenue / count", format="$,.2f"),
+        Measure("completed_count", type="count",
+                filters=[("status", "equals", "completed")]),
+    ],
+)
+
+customers = Entity(
+    name="customers",
+    source="data/customers.csv",
+    dimensions=[
+        Dimension("id", type="number", primary_key=True),
+        Dimension("name", type="string"),
+        Dimension("segment", type="string"),
+        Dimension("region", type="string"),
+        Dimension("signup_date", type="time"),
+    ],
+    measures=[
+        Measure("count", type="count_distinct", sql="id"),
+    ],
+)
+
+products = Entity(
+    name="products",
+    source="data/products.csv",
+    dimensions=[
+        Dimension("id", type="number", primary_key=True),
+        Dimension("name", type="string"),
+        Dimension("category", type="string"),
+        Dimension("price", type="number"),
+        Dimension("cost", type="number"),
+    ],
+)
 ```
 
-Sources are **first-class objects**. The dashboard tracks them, profiles them, and
-understands their schemas. An agent can ask: "what sources do I have? what columns?
-what types? how fresh is the data?"
+This mirrors:
+- **Looker**: `view: orders { dimension: status { type: string } measure: revenue { type: sum sql: ${amount} } }`
+- **Cube**: `cube('Orders', { dimensions: { status: { type: 'string' } }, measures: { revenue: { type: 'sum', sql: 'amount' } } })`
+- **PowerBI**: Table "Orders" with columns + DAX measure `Total Revenue = SUM(Orders[Amount])`
+
+### Relationships (like Looker joins, PowerBI relationships, Cube joins)
 
 ```python
-# Agent discovers what's available
-for src in dash.sources:
-    print(src.name, src.columns, src.row_count, src.freshness)
+from notebookmd.analytics import Relationship
 
-# Output:
-# orders    [date, customer_id, product_id, quantity, revenue]  145,230  2026-03-12
-# customers [id, name, segment, region, signup_date]             12,891  2026-03-12
-# products  [id, name, category, price, cost]                      487  2026-03-01
-# web       [timestamp, event, user_id, page, duration]       1.2M     2026-03-12
+# Same concept as every BI platform: entity A links to entity B on a key
+rels = [
+    Relationship("orders", "customers",
+                 on=("customer_id", "id"),
+                 type="many_to_one"),
+
+    Relationship("orders", "products",
+                 on=("product_id", "id"),
+                 type="many_to_one"),
+]
 ```
 
-### 2. Metrics — "What are we measuring?"
+Mirrors:
+- **Looker**: `join: customers { relationship: many_to_one  sql_on: ${orders.customer_id} = ${customers.id} }`
+- **Cube**: `joins: { Customers: { relationship: 'many_to_one', sql: '${CUBE}.customer_id = ${Customers}.id' } }`
+- **PowerBI**: Relationship from Orders[CustomerID] to Customers[ID], many-to-one
 
-Metrics are defined once, reused everywhere. Not just formatted values — actual
-calculations with formulas, formats, and business context.
+### Queries (like Looker explore queries, Cube /load API, Metabase questions)
 
 ```python
-# Define metrics as first-class objects
-dash.metric("revenue",
-    expr="SUM(orders.revenue)",
-    format="$,.0f",
-    description="Total gross revenue from all orders")
+from notebookmd.analytics import Query
 
-dash.metric("aov",
-    expr="SUM(orders.revenue) / COUNT(orders.*)",
-    format="$,.2f",
-    description="Average order value")
+# Composable query: select measures + dimensions → platform resolves joins + generates results
+q = Query(
+    measures=["orders.revenue", "orders.count"],
+    dimensions=["customers.segment", "orders.order_date"],
+    time_granularity="month",
+    filters=[("orders.status", "equals", "completed")],
+    sort=("orders.order_date", "asc"),
+    limit=100,
+)
 
-dash.metric("customers",
-    expr="COUNT(DISTINCT orders.customer_id)",
-    format=",d",
-    description="Unique paying customers")
-
-dash.metric("conversion_rate",
-    expr="COUNT(DISTINCT orders.customer_id) / COUNT(DISTINCT web.user_id)",
-    format=".1%",
-    description="Visitor to customer conversion rate",
-    sources=["orders", "web"])  # cross-source metric
+# Execute against the model → returns DataFrame
+result = dash.execute(q)
 ```
 
-Metrics know:
-- **How to compute themselves** (expression tied to source columns)
-- **How to format** (currency, percentage, integer, etc.)
-- **What they mean** (description for agents and humans)
-- **Which sources they need** (dependency tracking)
-- **How to compare** (period-over-period, vs target, vs benchmark)
+This is the same pattern as:
+- **Cube REST API**: `{ "measures": ["Orders.revenue"], "dimensions": ["Orders.status"], "timeDimensions": [{"dimension": "Orders.created_at", "granularity": "month"}] }`
+- **Looker**: User selects measures + dimensions in Explore → LookML generates SQL
+- **Metabase**: "Question" with table, columns, aggregations, filters
 
-### 3. Relationships & Joins — "How does the data connect?"
+The platform resolves joins automatically — if you ask for `orders.revenue` by
+`customers.segment`, it knows to join orders → customers via customer_id.
 
-The dashboard understands how tables relate. Agents don't manually write JOIN clauses.
-
-```python
-# Define relationships between sources
-dash.join("orders", "customers", on="customer_id")
-dash.join("orders", "products", on="product_id")
-```
-
-Now the platform can automatically:
-- Slice revenue by customer segment (orders → customers)
-- Slice revenue by product category (orders → products)
-- Compute cross-source metrics without manual SQL
+### Dashboard (like Metabase dashboards, Looker dashboards, PowerBI reports)
 
 ```python
-# Agent asks for revenue by segment — the platform handles the join
-by_segment = dash.slice("revenue", by="customers.segment")
-# Returns DataFrame with segment, revenue — join handled automatically
+dash = Dashboard(
+    title="Weekly Business Review",
+    entities=[orders, customers, products],
+    relationships=rels,
+    output="output/weekly.md",
+)
 
-# Multi-dimensional slice
-by_segment_category = dash.slice("revenue", by=["customers.segment", "products.category"])
-```
+# Global filters (like Metabase parameters, Looker dashboard filters, PowerBI slicers)
+dash.filter("date_range", dimension="orders.order_date", default="last_30_days")
+dash.filter("region", dimension="customers.region")
 
-### 4. Dimensions & Slicing — "How do we break it down?"
+# Tiles (like Metabase dashboard cards, Looker tiles, PowerBI visuals)
+dash.section("Key Metrics")
+dash.tile("orders.revenue", type="metric", compare="previous_period")
+dash.tile("orders.count", type="metric", compare="previous_period")
+dash.tile("orders.aov", type="metric", compare="previous_period")
 
-Dimensions are the axes you slice metrics along. The platform auto-discovers them
-and lets agents explore freely.
+dash.section("Revenue Trend")
+dash.tile("orders.revenue", by="orders.order_date",
+          type="line_chart", granularity="daily")
 
-```python
-# Auto-discovered dimensions
-dash.dimensions()
-# → ["orders.date", "customers.segment", "customers.region",
-#    "products.category", "products.name"]
+dash.section("Segment Analysis")
+dash.tile("orders.revenue", by="customers.segment",
+          type="bar_chart", sort="desc")
 
-# Slice any metric by any dimension
-revenue_by_date = dash.slice("revenue", by="orders.date", period="weekly")
-revenue_by_region = dash.slice("revenue", by="customers.region")
-revenue_trend = dash.trend("revenue", over="orders.date", period="daily", last=30)
+dash.section("Regional Breakdown")
+dash.tile(["orders.revenue", "orders.count"],
+          by="customers.region",
+          type="table", sort="orders.revenue desc")
 
-# Compare periods
-dash.compare("revenue", current="2026-03", previous="2026-02")
-# → {current: $1.2M, previous: $1.05M, change: +$150K, pct: +14.3%}
-```
+dash.section("Top Products")
+dash.tile("orders.revenue", by="products.category",
+          type="bar_chart", top=10)
 
-### 5. Transforms & Computed Fields — "Derive new data"
-
-Add computed columns, filters, and aggregations without touching the raw data.
-
-```python
-# Computed fields
-dash.compute("orders", "profit", expr="revenue - (products.cost * quantity)")
-dash.compute("orders", "margin", expr="profit / revenue", format=".1%")
-
-# Filters
-enterprise = dash.filter("customers.segment == 'Enterprise'")
-recent = dash.filter("orders.date >= '2026-03-01'")
-
-# Filtered metrics
-enterprise_revenue = dash.slice("revenue", by="orders.date", where=enterprise)
-```
-
-### 6. Render — "Show me the dashboard"
-
-After all the analytical thinking, visualization is the final step.
-The platform uses notebookmd underneath but the agent thinks in metrics and dimensions,
-not in widget calls.
-
-```python
-# High-level rendering — the platform decides the best visualization
-dash.show("revenue")                          # → metric card with delta
-dash.show("revenue", by="orders.date")        # → line chart (time series)
-dash.show("revenue", by="customers.region")   # → bar chart (categorical)
-dash.show("revenue", by=["region", "date"])   # → multi-line chart
-
-# Or explicit control
-dash.card("revenue", "aov", "customers")      # → metric row
-dash.timeseries("revenue", period="daily")    # → trend chart + table
-dash.breakdown("revenue", by="segment")       # → bar chart + table
-dash.comparison("revenue", "2026-03", "2026-02")  # → delta table
-
-# Save the full dashboard
+# Render → resolves all queries, joins, and renders to Markdown
 dash.save()
 ```
 
-The `.show()` method is smart — it picks the right visualization based on the metric
-type and dimension. Time dimension → line chart. Categorical → bar chart. Single value → metric card.
+Each `tile()` is equivalent to:
+- **Metabase**: A DashCard (card + position + parameter mappings)
+- **Looker**: A dashboard element (explore + measures + dimensions + viz type)
+- **PowerBI**: A visual on a report page (fields + chart type)
+
+---
+
+## Smart Defaults: Auto-Pick Visualization
+
+Like Metabase's auto-chart selection, the platform picks the right visualization:
+
+| Query Shape | Auto Visualization |
+|-------------|-------------------|
+| Single measure, no dimensions | Metric card |
+| Measures + time dimension | Line chart |
+| Measures + categorical dimension | Bar chart |
+| Measures + categorical + time | Multi-line chart |
+| Multiple measures + multiple dimensions | Table |
+| Single measure + compare period | Metric card with delta |
+
+```python
+# The platform auto-selects:
+dash.tile("orders.revenue")                              # → metric card
+dash.tile("orders.revenue", by="orders.order_date")      # → line chart
+dash.tile("orders.revenue", by="customers.region")       # → bar chart
+dash.tile("orders.revenue", by="customers.region",
+          compare="previous_period")                     # → bar chart with deltas
+
+# Or override explicitly:
+dash.tile("orders.revenue", by="customers.region", type="table")
+```
+
+---
+
+## Time Intelligence (Built-In)
+
+Like PowerBI's DAX time intelligence or Looker's dimension_group:
+
+```python
+# Period comparison — automatic when time dimension is involved
+dash.tile("orders.revenue", compare="previous_period")    # vs last 30 days
+dash.tile("orders.revenue", compare="previous_year")      # vs same period last year
+dash.tile("orders.revenue", compare="target", target=1_500_000)  # vs target
+
+# Time granularity
+dash.tile("orders.revenue", by="orders.order_date", granularity="daily")
+dash.tile("orders.revenue", by="orders.order_date", granularity="weekly")
+dash.tile("orders.revenue", by="orders.order_date", granularity="monthly")
+
+# Automatic time dimension detection from Dimension(type="time")
+```
+
+---
+
+## Interop: Import From / Export To BI Platforms
+
+Because the data model maps 1:1, we can convert between platforms:
+
+### Import from Metabase
+
+```python
+from notebookmd.analytics.interop import from_metabase
+
+# Connect to Metabase API, import dashboard definition
+dash = from_metabase(
+    url="https://metabase.company.com",
+    api_key="mb_xxxx",
+    dashboard_id=42,
+    output="output/imported_dashboard.md",
+)
+
+# Now you have the same dashboard as Python objects
+# Entities, dimensions, measures, relationships, tiles — all mapped
+dash.save()  # → Markdown version of the Metabase dashboard
+```
+
+### Import from Looker (LookML)
+
+```python
+from notebookmd.analytics.interop import from_lookml
+
+dash = from_lookml(
+    project_dir="path/to/lookml/",
+    explore="orders",
+    output="output/looker_dashboard.md",
+)
+```
+
+### Import from Cube
+
+```python
+from notebookmd.analytics.interop import from_cube
+
+dash = from_cube(
+    url="https://cube.company.com",
+    api_token="xxx",
+    cubes=["Orders", "Customers"],
+    output="output/cube_dashboard.md",
+)
+```
+
+### Export to Metabase
+
+```python
+from notebookmd.analytics.interop import to_metabase
+
+# Push the dashboard definition back to Metabase
+to_metabase(dash, url="https://metabase.company.com", api_key="mb_xxxx")
+# Creates questions and a dashboard in Metabase matching the definition
+```
+
+### Export as Cube Schema
+
+```python
+from notebookmd.analytics.interop import to_cube_schema
+
+# Generate Cube YAML from the dashboard model
+to_cube_schema(dash, output_dir="cube/schema/")
+# Writes Orders.yaml, Customers.yaml, Products.yaml with dimensions, measures, joins
+```
+
+This means notebookmd analytics can be:
+- A **Markdown preview** of an existing Metabase/Looker dashboard
+- A **migration tool** between BI platforms (Metabase → Looker → PowerBI)
+- A **code-first definition** that syncs to any BI platform
+- A **standalone analytics platform** for agent workflows
 
 ---
 
 ## End-to-End Example
 
 ```python
-from notebookmd.analytics import Dashboard
+from notebookmd.analytics import Dashboard, Entity, Dimension, Measure, Relationship
 
-# === SETUP: Define the analytical model ===
+# --- Define the model (once, reuse across dashboards) ---
 
-dash = Dashboard("output/weekly.md", title="Weekly Business Review")
+orders = Entity("orders", source="data/orders.csv", dimensions=[
+    Dimension("id", type="number", primary_key=True),
+    Dimension("date", type="time"),
+    Dimension("customer_id", type="number"),
+    Dimension("product_id", type="number"),
+    Dimension("status", type="string"),
+], measures=[
+    Measure("revenue", type="sum", sql="amount", format="$,.0f"),
+    Measure("count", type="count"),
+    Measure("aov", type="number", sql="revenue / count", format="$,.2f"),
+])
 
-# Sources
-dash.source("orders", "data/orders.csv")
-dash.source("customers", "data/customers.csv")
-dash.source("products", "data/products.csv")
+customers = Entity("customers", source="data/customers.csv", dimensions=[
+    Dimension("id", type="number", primary_key=True),
+    Dimension("name", type="string"),
+    Dimension("segment", type="string"),
+    Dimension("region", type="string"),
+])
 
-# Relationships
-dash.join("orders", "customers", on="customer_id")
-dash.join("orders", "products", on="product_id")
+products = Entity("products", source="data/products.csv", dimensions=[
+    Dimension("id", type="number", primary_key=True),
+    Dimension("category", type="string"),
+    Dimension("price", type="number"),
+    Dimension("cost", type="number"),
+])
 
-# Metrics
-dash.metric("revenue", expr="SUM(orders.revenue)", format="$,.0f")
-dash.metric("orders", expr="COUNT(orders.*)", format=",d")
-dash.metric("aov", expr="revenue / orders", format="$,.2f")
-dash.metric("margin", expr="SUM(orders.revenue - products.cost * orders.quantity) / SUM(orders.revenue)", format=".1%")
+rels = [
+    Relationship("orders", "customers", on=("customer_id", "id"), type="many_to_one"),
+    Relationship("orders", "products", on=("product_id", "id"), type="many_to_one"),
+]
 
-# === RENDER: Build the dashboard ===
+# --- Build the dashboard ---
+
+dash = Dashboard(
+    title="Weekly Business Review",
+    entities=[orders, customers, products],
+    relationships=rels,
+    output="output/weekly.md",
+)
+
+dash.filter("date_range", dimension="orders.date", default="last_30_days")
 
 dash.section("Key Metrics")
-dash.card("revenue", "orders", "aov", "margin", compare="previous_week")
+dash.tile("orders.revenue", compare="previous_period")
+dash.tile("orders.count", compare="previous_period")
+dash.tile("orders.aov", compare="previous_period")
 
 dash.section("Revenue Trend")
-dash.timeseries("revenue", period="daily", last=30)
+dash.tile("orders.revenue", by="orders.date", granularity="weekly")
 
-dash.section("Segment Analysis")
-dash.breakdown("revenue", by="customers.segment")
-dash.breakdown("revenue", by="products.category", top=10)
+dash.section("By Segment")
+dash.tile("orders.revenue", by="customers.segment", type="bar_chart")
+dash.tile(["orders.revenue", "orders.count"], by="customers.segment", type="table")
+
+dash.section("By Product Category")
+dash.tile("orders.revenue", by="products.category", top=10)
 
 dash.section("Regional Performance")
-dash.breakdown("revenue", by="customers.region", compare="previous_week")
-
-dash.section("Data Health")
-dash.freshness()   # Shows last-updated for each source
-dash.coverage()    # Shows null rates, data completeness
+dash.tile("orders.revenue", by="customers.region", compare="previous_period")
 
 dash.save()
 ```
 
-**Output**: A complete `weekly.md` with KPI cards, trend charts, breakdowns, comparisons —
-all from a single analytical model definition. No manual pandas. No manual SQL. No manual
-chart configuration.
+**What happens under the hood:**
+1. Dashboard loads all sources (CSV → DataFrames)
+2. For each tile, resolves the required joins (orders → customers → products)
+3. Computes the measures with the right aggregations and groupings
+4. Applies global filters (date range)
+5. Auto-selects visualization type per tile
+6. Renders everything through notebookmd (metric cards, tables, charts)
+7. Saves `output/weekly.md` + `output/assets/`
 
 ---
 
-## How This Differs from "Just Using notebookmd"
+## Agent Workflow
 
-| Concern | Raw notebookmd | Analytics Dashboard |
-|---------|:---:|:---:|
-| Data sources | Agent does `pd.read_csv()` manually | `dash.source()` — registered, tracked, profiled |
-| Metrics | Agent computes `df['revenue'].sum()` and formats manually | `dash.metric("revenue", expr=...)` — defined once, computed automatically |
-| Joins | Agent writes `pd.merge()` or SQL joins manually | `dash.join()` — relationships declared, joins automatic |
-| Slicing | Agent does `df.groupby()` manually | `dash.slice("revenue", by="segment")` — one call |
-| Period comparison | Agent computes current vs previous manually | `dash.compare("revenue", current, previous)` — built in |
-| Visualization | Agent calls `n.metric()`, `n.table()`, `n.chart()` directly | `dash.show("revenue", by="date")` — auto-picks the right chart |
-| Freshness | Not tracked | `dash.freshness()` — automatic |
-| Reusability | Copy-paste between reports | Metrics and sources defined once, reused across dashboards |
-
-The key difference: **raw notebookmd is a rendering library. The Analytics Dashboard is an
-analytical thinking framework** that happens to render to Markdown.
-
----
-
-## The Analytical Model
-
-At the core is a declarative analytical model:
+An AI agent works at this level:
 
 ```python
-# The model — WHAT we're analyzing
-Sources:     orders, customers, products, web_events
-Joins:       orders ↔ customers (customer_id), orders ↔ products (product_id)
-Metrics:     revenue, aov, margin, customers, conversion_rate
-Dimensions:  date, segment, region, category
-Filters:     enterprise_only, recent_30d, high_value
+# 1. Agent discovers data sources
+sources = discover("data/")  # auto-detect CSV/Parquet files
 
-# The dashboard — HOW we're presenting it
-Sections:    Key Metrics, Trends, Breakdowns, Comparisons, Data Health
+# 2. Agent inspects schemas
+for entity in sources:
+    print(entity.name, entity.dimensions, entity.suggest_measures())
+
+# 3. Agent builds the model
+dash = Dashboard.from_entities(sources, auto_join=True)
+# auto_join detects foreign keys and creates relationships
+
+# 4. Agent adds tiles (or uses auto_dashboard)
+dash.auto_dashboard()  # auto-generates sections + tiles from the model
+
+# 5. Save
+dash.save()
 ```
 
-This model is:
-- **Reusable** — same model, different dashboards (weekly summary vs deep dive)
-- **Composable** — mix sources and metrics freely
-- **Discoverable** — agents can introspect the model to decide what to analyze
-- **Portable** — the model definition is Python code, versionable in git
+Or for a specific analysis:
 
-### Agent Workflow
-
-An agent working with the Analytics Dashboard thinks at a higher level:
-
+```python
+# Agent uses the Cube-style query API
+result = dash.query(
+    measures=["orders.revenue"],
+    dimensions=["customers.segment"],
+    filters=[("orders.date", "gte", "2026-01-01")],
+)
+# result is a DataFrame — agent can reason about it, then decide what to render
 ```
-1. "What data sources are available?"     → dash.sources
-2. "What can I measure?"                  → dash.metrics
-3. "What dimensions can I slice by?"      → dash.dimensions()
-4. "How has revenue changed?"             → dash.trend("revenue")
-5. "What's driving the change?"           → dash.breakdown("revenue", by="segment")
-6. "Show me the dashboard."               → dash.save()
-```
-
-Compare this to raw notebookmd where the agent must manually:
-1. Load each CSV/database
-2. Write pandas code for every aggregation
-3. Format every number
-4. Choose every chart type
-5. Handle every join
 
 ---
 
@@ -319,96 +453,77 @@ Compare this to raw notebookmd where the agent must manually:
 
 ```
 notebookmd/
-├── analytics/                    # NEW: The analytics platform
-│   ├── __init__.py               # Dashboard class, public API
-│   ├── dashboard.py              # Dashboard: sources, metrics, joins, rendering
-│   ├── source.py                 # DataSource: connect, schema, query, profile
-│   ├── metric.py                 # MetricDef: expression, format, dependencies
-│   ├── join.py                   # JoinSpec: relationships between sources
-│   ├── slice.py                  # Slicer: groupby, filter, period comparison
-│   ├── suggest.py                # Auto-discovery: suggest metrics, charts, dimensions
-│   └── refresh.py                # Re-run + diff tracking
-├── core.py                       # Notebook class (existing — used by Dashboard internally)
-├── plugins/                      # Widget plugins (existing — used by Dashboard internally)
-│   ├── text.py, data.py, charts.py, analytics.py, ...
+├── analytics/                  # NEW: The analytics platform
+│   ├── __init__.py             # Public API: Dashboard, Entity, Dimension, Measure, etc.
+│   ├── model.py                # Entity, Dimension, Measure, Relationship
+│   ├── dashboard.py            # Dashboard: tiles, filters, sections, save()
+│   ├── query.py                # Query builder: resolve joins, generate SQL/pandas
+│   ├── engine.py               # Execution engine: run queries against sources
+│   ├── time.py                 # Time intelligence: granularity, period comparison
+│   ├── suggest.py              # Auto-discovery: detect dimensions, suggest measures
+│   ├── refresh.py              # Re-run + metric diff tracking
+│   └── interop/                # Platform connectors
+│       ├── __init__.py
+│       ├── metabase.py         # from_metabase() / to_metabase()
+│       ├── lookml.py           # from_lookml() / to_lookml()
+│       ├── cube.py             # from_cube() / to_cube_schema()
+│       └── powerbi.py          # from_powerbi() / to_powerbi()
+├── core.py                     # Notebook (existing rendering engine)
+├── plugins/                    # Widget plugins (existing)
 └── ...
 ```
-
-The `Dashboard` class owns a `Notebook` internally. It translates analytical operations
-(slice, trend, breakdown, compare) into notebookmd widget calls (metric, table, chart).
-The agent never touches `n.metric()` directly — it works at the analytics level.
 
 ---
 
 ## Implementation Plan
 
 ### Phase 1: Core Model
-- `Dashboard` class with `source()`, `metric()`, `join()`
-- `DataSource` with schema discovery, profiling, query
-- `MetricDef` with expression parsing and formatting
-- `JoinSpec` with automatic join resolution
-- Basic `show()` → delegates to notebookmd rendering
+- `Entity`, `Dimension`, `Measure`, `Relationship` dataclasses
+- `Dashboard` class with `section()`, `tile()`, `filter()`
+- Basic query engine: resolve joins, compute measures on CSV/DataFrames
+- Render tiles through notebookmd (metric → `n.metric()`, bar → `n.bar_chart()`, etc.)
+- `dash.save()` → Markdown output
 
-### Phase 2: Slicing & Comparison
-- `slice()` — groupby any dimension with automatic joins
-- `trend()` — time series with configurable period
-- `compare()` — period-over-period, segment-vs-segment
-- `breakdown()` — top-N categorical analysis
-- Smart chart selection based on metric + dimension type
+### Phase 2: Query Engine
+- Composable `Query` object (measures + dimensions + filters + time)
+- Automatic join resolution from relationship graph
+- Time granularity and period comparison
+- Smart chart type selection
 
 ### Phase 3: Auto-Discovery
-- `suggest()` — auto-detect metrics, time columns, categories
-- `dash.auto()` — generate a complete dashboard from sources alone
-- `dimensions()` — enumerate all available slicing axes
-- `anomalies()` — flag statistical outliers
+- `discover()` — scan directory for data files, infer entities
+- `suggest_measures()` — detect numeric columns → SUM/AVG/COUNT
+- `auto_join=True` — detect foreign keys
+- `auto_dashboard()` — generate full dashboard from model
 
-### Phase 4: Templates & Operations
-- Pre-built dashboard templates (KPI, TimeSeries, Comparison, Funnel)
-- `refresh()` — re-run with metric diff tracking
-- `freshness()` / `coverage()` — data health widgets
-- CLI: `notebookmd run --refresh --alert-webhook`
+### Phase 4: Interop
+- `from_metabase()` / `to_metabase()` — API-based import/export
+- `from_lookml()` — parse LookML files into Entity/Measure/Relationship
+- `to_cube_schema()` — generate Cube YAML from model
+- `from_cube()` — import from Cube REST API
 
-### Phase 5: Advanced
-- Computed fields and derived metrics
-- Cross-source metrics (metrics spanning multiple sources)
-- Parameterized dashboards (date range, region, segment as parameters)
-- Report index and cross-dashboard navigation
-
----
-
-## Dependency Strategy
-
-| Feature | Zero deps | Optional |
-|---------|:-:|:-:|
-| Dashboard API, metric definitions, join specs | yes | — |
-| CSV source | yes (stdlib) | — |
-| SQLite source | yes (stdlib) | — |
-| Pandas source + transforms | — | `[pandas]` |
-| SQL databases | — | `[sql]` → `sqlalchemy` |
-| DuckDB (universal query) | — | `[duckdb]` |
-| Chart rendering | — | `[plotting]` |
-| Everything | — | `[all]` |
+### Phase 5: Operations
+- `refresh()` with metric diff tracking
+- `--refresh` CLI flag
+- Parameterized dashboards (date range, filters as CLI args)
+- Report index across multiple dashboards
 
 ---
 
 ## The Positioning
 
-This is not a rendering library. This is an **analytics platform**.
-
 ```
-Metabase:    GUI → click to explore → dashboard (browser-only)
-PowerBI:     GUI → drag and drop → dashboard (proprietary)
-Evidence:    SQL + Markdown → build step → static website
-Streamlit:   Python → live server → interactive app
+Same analytical model as:    Metabase, Looker, PowerBI, Cube
+Same data modeling:          Entities + Dimensions + Measures + Joins
+Same query pattern:          Select measures + dimensions → results
 
-notebookmd:  Python → analytical model → Markdown report (portable, everywhere)
+Different delivery:          Python-defined, Markdown-output, agent-native
+Different audience:          AI agents and code-first teams
+Different philosophy:        Code, not clicks. Files, not servers.
 ```
 
-What they all have in common: **data sources, metrics, joins, dimensions, slicing**.
-That's what analytics IS. The visualization is just the delivery format.
+Import a Metabase dashboard → get a Markdown version.
+Define a model in Python → export to Looker or Cube.
+Let an agent build a dashboard → renders to `.md` automatically.
 
-notebookmd's analytics layer speaks the same language as Metabase and PowerBI —
-sources, metrics, relationships, dimensions — but in Python code, for agents,
-outputting Markdown.
-
-**Code-first. Agent-native. Markdown-output. Full analytics.**
+**One data model. Every BI platform. Markdown output.**
