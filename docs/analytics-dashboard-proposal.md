@@ -447,6 +447,101 @@ Stays true to notebookmd's zero-dep core philosophy:
 
 ---
 
+## Lightweight Semantic Layer
+
+Research shows that **every successful BI tool has a semantic layer** — PowerBI's semantic
+models, dbt's metrics layer, Metabase's metadata sync. It's what prevents LLMs from
+hallucinating when they query data. notebookmd doesn't need a full-blown semantic layer,
+but a lightweight version would be the differentiator.
+
+### Report Metadata Header
+
+Every generated report embeds machine-readable context:
+
+```markdown
+<!--
+notebookmd:dashboard
+sources:
+  - name: sales_db
+    type: postgresql
+    tables: [orders, customers, products]
+    freshness: 2026-03-12T09:00:00Z
+metrics:
+  - name: total_revenue
+    expr: "SUM(orders.total)"
+    format: "$,.0f"
+  - name: avg_order_value
+    expr: "AVG(orders.total)"
+    format: "$,.2f"
+parameters:
+  date_range: "2026-03-01..2026-03-12"
+  region: "all"
+-->
+```
+
+This means:
+- **Other agents** can parse the report and understand what data backs it
+- **Refresh scripts** know what to re-query and can diff metrics
+- **Report indexes** can auto-catalog dashboards by source, metrics, and freshness
+- **Downstream agents** can chain analyses without re-discovering the schema
+
+### Metric Definitions (Reusable)
+
+```python
+from notebookmd.sources import MetricDef
+
+revenue = MetricDef("Total Revenue", expr="SUM(total)", format="$,.0f")
+aov = MetricDef("Avg Order Value", expr="AVG(total)", format="$,.2f")
+
+# Use in any dashboard
+n.metric_from(revenue, src, filter="date >= '2026-03-01'")
+```
+
+This is intentionally simpler than dbt's MetricFlow or Cube — just enough structure for
+agents to work with, without requiring a build step or config server.
+
+---
+
+## Cross-Report Linking & Indexing
+
+When agents generate 50+ reports, navigation becomes critical:
+
+```python
+from notebookmd.dashboard import ReportIndex
+
+idx = ReportIndex("output/")
+idx.scan()  # Discovers all .md files with notebookmd metadata
+
+# Generate an index page
+n = nb("output/index.md", title="Dashboard Index")
+n.table(idx.to_dataframe(), name="All Reports")
+# Columns: title, sources, last_refreshed, metrics_count, status
+n.save()
+```
+
+---
+
+## Competitive Positioning
+
+> **Evidence.dev is BI-as-code for humans writing SQL.**
+> **notebookmd is BI-as-code for AI agents writing Python.**
+
+| Dimension | Evidence.dev | Streamlit | Metabase | notebookmd (proposed) |
+|-----------|:-:|:-:|:-:|:-:|
+| Language | SQL + Markdown | Python | SQL + UI | Python |
+| Output | Static website | Live server | Live server | Static Markdown |
+| Dependencies | Node.js, DuckDB | Python, server | JVM, database | Zero (core) |
+| AI-native | Evidence Agent | Community | Metabot | Built for agents |
+| Git-friendly | yes | no | no | yes |
+| Token efficiency | N/A | N/A | N/A | 4-5x vs HTML |
+| Artifact persistence | Built site | Ephemeral | Ephemeral | `.md` + `assets/` |
+
+Key insight from research: Markdown is **4-5x more token-efficient than HTML** for LLM
+consumption (2 tokens for `## Heading` vs 9 for `<h2>Heading</h2>`). This makes notebookmd
+reports inherently cheaper and faster for downstream agent processing.
+
+---
+
 ## What Makes This Unique
 
 1. **Agent-first** — Every feature is designed for programmatic use, not clicking a UI
